@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 旅遊行程規劃器｜從台灣出發的免費行程規劃工具</title>
+<meta name="description" content="輸入目的地與天數，AI 立即生成專屬旅遊行程，含住宿推薦、景點門票、預算估算。支援東京、首爾、大阪、峇里島等熱門目的地。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#f6f5f2;color:#1a1a18;min-height:100vh}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(145deg,#0d3b26 0%,#1b6b45 55%,#52b788 100%);padding:1.8rem 1.5rem 1.5rem;position:relative;overflow:hidden}
+.hero::before{content:"✈️";font-size:100px;position:absolute;right:0;top:-10px;opacity:0.08;transform:rotate(-20deg);pointer-events:none}
+.hero-eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#a8dfc3;margin-bottom:6px}
+.hero-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:3px}
+.hero-sub{font-size:12px;color:#a8dfc3;margin-bottom:1.3rem}
+
+/* ── CONTROLS ── */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.ctrl{display:flex;flex-direction:column;gap:4px}
+.ctrl-lbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#a8dfc3}
+.dest-wrap{position:relative}
+.dest-in{width:250px;padding:8px 36px 8px 11px;border-radius:7px;border:1.5px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.13);color:#fff;font-size:13px;font-family:inherit;outline:none;transition:border .15s}
+.dest-in::placeholder{color:rgba(255,255,255,0.38)}
+.dest-in:focus{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.18)}
+.xclear{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.45);cursor:pointer;font-size:15px;padding:2px;display:none}
+.xclear.on{display:block}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.chip{padding:4px 9px;font-size:11px;border-radius:11px;cursor:pointer;border:1px solid rgba(255,255,255,0.23);background:rgba(255,255,255,0.09);color:#cceedd;transition:all .13s;font-family:inherit}
+.chip:hover{background:rgba(255,255,255,0.2)}
+.stepper{display:flex;align-items:center;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.22);border-radius:7px;overflow:hidden}
+.sbtn{background:none;border:none;color:#fff;font-size:19px;width:36px;height:36px;cursor:pointer;transition:background .13s;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.sbtn:hover:not(:disabled){background:rgba(255,255,255,0.15)}
+.sbtn:disabled{opacity:.3;cursor:default}
+.snum{font-size:16px;font-weight:500;color:#fff;min-width:28px;text-align:center}
+.snite{font-size:12px;color:#a8dfc3;margin-left:7px}
+.ipills{display:flex;gap:5px;flex-wrap:wrap}
+.ip{padding:5px 10px;font-size:11px;border-radius:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.08);color:#cceedd;transition:all .13s;font-family:inherit}
+.ip:hover{background:rgba(255,255,255,0.18)}
+.ip.on{background:rgba(255,255,255,0.88);color:#1b6b45;border-color:transparent;font-weight:500}
+.gbtn{padding:9px 20px;font-size:13px;font-weight:500;background:#fff;color:#1b6b45;border:none;border-radius:7px;cursor:pointer;font-family:inherit;transition:all .13s;white-space:nowrap;align-self:flex-end}
+.gbtn:hover:not(:disabled){background:#e8f5ee}
+.gbtn:disabled{opacity:.5;cursor:default}
+
+/* ── LAYOUT ── */
+.wrap{max-width:880px;margin:0 auto;padding:1.1rem}
+.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3.5rem 1rem;color:#999;gap:10px}
+.ph-ico{font-size:44px;opacity:.25}
+.ph-txt{font-size:13px;text-align:center;line-height:1.65}
+
+/* ── SUMMARY ── */
+.sumbar{background:#fff;border:1px solid #e8e4dc;border-radius:11px;padding:13px 15px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.si{display:flex;flex-direction:column;gap:2px}
+.sl{font-size:10px;color:#888;letter-spacing:.5px;text-transform:uppercase}
+.sv{font-size:14px;font-weight:500}
+.shi{flex:1;min-width:150px}
+.shi .sv{font-size:12px;font-weight:400;color:#555}
+
+/* ── TIPS BAR ── */
+.tipsbar{background:#e8f5ee;border-radius:9px;padding:9px 13px;margin-bottom:11px;font-size:12px;color:#2d6a4f;display:flex;flex-wrap:wrap;gap:10px}
+
+/* ── AFFILIATE BANNER (住宿搜尋) ── */
+.aff-banner{background:#fff;border:1px solid #e8e4dc;border-radius:11px;padding:13px 15px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.aff-banner-txt{flex:1;min-width:160px}
+.aff-banner-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.aff-banner-sub{font-size:11px;color:#777}
+.aff-links{display:flex;gap:7px;flex-wrap:wrap}
+.aff-btn{padding:7px 14px;font-size:12px;font-weight:500;border-radius:7px;text-decoration:none;transition:opacity .13s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.aff-btn:hover{opacity:.82}
+.aff-agoda{background:#5c2d91;color:#fff}
+.aff-booking{background:#003580;color:#fff}
+.aff-kkday{background:#ff5722;color:#fff}
+.aff-klook{background:#ff5c1c;color:#fff}
+
+/* ── DAY CARDS ── */
+.daylist{display:flex;flex-direction:column;gap:9px}
+.dc{background:#fff;border:1px solid #e8e4dc;border-radius:11px;overflow:hidden}
+.dh{padding:11px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;transition:background .12s}
+.dh:hover{background:#fafaf7}
+.dbadge{width:32px;height:32px;border-radius:50%;background:#2d6a4f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.dinfo{flex:1}
+.dtitle{font-size:13px;font-weight:500}
+.dcity{font-size:11px;padding:2px 7px;border-radius:7px;background:#e8f5ee;color:#2d6a4f;margin-top:3px;display:inline-block}
+.dchev{color:#ccc;font-size:15px;transition:transform .18s;flex-shrink:0}
+.dchev.op{transform:rotate(180deg)}
+.dbody{display:none;border-top:1px solid #f5f2ec;padding:11px 13px}
+.dbody.op{display:block}
+
+/* ── SLOTS & ACTIVITIES ── */
+.slot{margin-bottom:12px}
+.slot:last-child{margin-bottom:0}
+.slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:6px;font-weight:500}
+.arow{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid #faf8f4;align-items:flex-start}
+.arow:last-child{border-bottom:none}
+.aico{font-size:17px;flex-shrink:0;margin-top:1px}
+.abody{flex:1}
+.aname{font-size:12px;font-weight:500}
+.adesc{font-size:11px;color:#666;margin-top:2px;line-height:1.5}
+.ameta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.atag{font-size:11px;background:#e8f5ee;color:#2d6a4f;padding:2px 6px;border-radius:3px}
+
+/* ── INLINE AFFILIATE LINKS ── */
+.aff-inline{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.aff-sm{padding:4px 9px;font-size:11px;font-weight:500;border-radius:5px;text-decoration:none;transition:opacity .13s;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.aff-sm:hover{opacity:.8}
+.aff-sm.hotel{background:#003580;color:#fff}
+.aff-sm.ticket{background:#ff5722;color:#fff}
+.aff-sm.tour{background:#ff5c1c;color:#fff}
+.aff-sm.klook{background:#ff5c1c;color:#fff}
+
+/* ── HOTEL SECTION ── */
+.hotel-section{background:#f7f9ff;border:1px solid #dde8f5;border-radius:9px;padding:10px 12px;margin-top:10px}
+.hotel-sec-title{font-size:11px;font-weight:500;color:#1060a0;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.hotel-cards{display:flex;gap:8px;flex-wrap:wrap}
+.hotel-card{background:#fff;border:1px solid #dde8f5;border-radius:8px;padding:9px 11px;flex:1;min-width:140px}
+.hotel-tier{font-size:10px;color:#888;margin-bottom:3px}
+.hotel-name{font-size:12px;font-weight:500;margin-bottom:4px}
+.hotel-price{font-size:11px;color:#2d6a4f;margin-bottom:6px}
+.hotel-book{display:inline-block;padding:4px 10px;font-size:11px;font-weight:500;border-radius:5px;text-decoration:none;background:#003580;color:#fff;transition:opacity .13s}
+.hotel-book:hover{opacity:.8}
+
+/* ── LOADING / ERROR ── */
+.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:3rem 1rem}
+.spin{width:32px;height:32px;border:2.5px solid #e8e4dc;border-top-color:#2d6a4f;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin-txt{font-size:13px;color:#888}
+.errbox{background:#fdecea;border:1px solid #f5c6c3;border-radius:9px;padding:11px 13px;color:#c0392b;font-size:12px}
+
+/* ── FOOTER NOTE ── */
+.aff-note{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1.5rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">AI Travel Planner — 免費使用</div>
+  <div class="hero-title">🌍 旅遊行程規劃器</div>
+  <div class="hero-sub">輸入任何目的地與天數，AI 立即生成完整行程、住宿推薦與預算估算</div>
+  <div class="controls">
+    <div class="ctrl" style="flex:1;min-width:200px">
+      <div class="ctrl-lbl">目的地</div>
+      <div class="dest-wrap">
+        <input class="dest-in" id="di" type="text" placeholder="東京、首爾、峇里島、巴黎…" autocomplete="off">
+        <button class="xclear" id="xc" onclick="clrDest()">✕</button>
+      </div>
+      <div class="chips">
+        <button class="chip" onclick="setD('日本東京')">🇯🇵 東京</button>
+        <button class="chip" onclick="setD('日本大阪')">🏯 大阪</button>
+        <button class="chip" onclick="setD('韓國首爾')">🇰🇷 首爾</button>
+        <button class="chip" onclick="setD('泰國曼谷')">🇹🇭 曼谷</button>
+        <button class="chip" onclick="setD('峇里島')">🌴 峇里島</button>
+        <button class="chip" onclick="setD('法國巴黎')">🇫🇷 巴黎</button>
+        <button class="chip" onclick="setD('義大利羅馬')">🇮🇹 羅馬</button>
+        <button class="chip" onclick="setD('英國倫敦')">🇬🇧 倫敦</button>
+        <button class="chip" onclick="setD('越南河內')">🇻🇳 河內</button>
+        <button class="chip" onclick="setD('新加坡')">🇸🇬 新加坡</button>
+      </div>
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-lbl">天數</div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="stepper">
+          <button class="sbtn" id="bm" onclick="chD(-1)">−</button>
+          <span class="snum" id="dn">5</span>
+          <button class="sbtn" id="bp" onclick="chD(1)">+</button>
+        </div>
+        <span class="snite" id="nt">4夜</span>
+      </div>
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-lbl">旅遊偏好</div>
+      <div class="ipills" id="ips">
+        <button class="ip on" data-v="美食">🍜 美食</button>
+        <button class="ip on" data-v="文化景點">⛩ 文化</button>
+        <button class="ip" data-v="購物">🛍 購物</button>
+        <button class="ip" data-v="自然風景">🌿 自然</button>
+        <button class="ip" data-v="夜生活">🌙 夜生活</button>
+        <button class="ip" data-v="親子家庭">👨‍👩‍👧 親子</button>
+      </div>
+    </div>
+    <button class="gbtn" id="gb" onclick="go()">✨ 生成行程</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="out">
+    <div class="ph">
+      <div class="ph-ico">🗺️</div>
+      <div class="ph-txt">輸入目的地與天數<br>點擊「生成行程」，AI 立即規劃你的旅程</div>
+    </div>
+  </div>
+  <div class="aff-note" id="affNote" style="display:none">
+    本站含聯盟行銷連結，點擊訂房/訂票連結完成預訂後，本站可能獲得少量佣金，不影響你的價格。
+  </div>
+</div>
+
+<script>
+// ================================================================
+// ⚠️ 部署前請填入你的 Cloudflare Worker 網址
+// ================================================================
+const WORKER_URL = "https://fragrant-bush-aaff.jocker96963.workers.dev";
+
+// ================================================================
+// 聯盟行銷連結設定
+// 申請帳號後，把 YOUR_AGODA_SITE_ID 等換成你自己的 ID
+// Agoda:   https://partners.agoda.com
+// Booking: https://www.booking.com/affiliate-program/v2/index.html
+// KKday:   https://affiliate.kkday.com
+// Klook:   https://affiliate.klook.com
+// ================================================================
+const AFF = {
+  agoda:   (dest) => `https://www.agoda.com/search?city=${encodeURIComponent(dest)}&tag=YOUR_AGODA_SITE_ID`,
+  booking: (dest) => `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(dest)}&aid=YOUR_BOOKING_AID`,
+  kkday:   (dest) => `https://www.kkday.com/zh-tw/country/search?q=${encodeURIComponent(dest)}&cid=YOUR_KKDAY_CID`,
+  klook:   (dest) => `https://www.klook.com/zh-TW/search/?query=${encodeURIComponent(dest)}&aid=YOUR_KLOOK_AID`,
+};
+
+// 依活動類型決定要顯示哪些聯盟連結
+function affLinks(type, dest, name) {
+  const q = encodeURIComponent(name + ' ' + dest);
+  if (type === 'hotel') {
+    return [
+      { label: '🏨 Agoda 訂房', cls: 'hotel', href: AFF.agoda(dest) },
+      { label: '🏨 Booking', cls: 'hotel', href: AFF.booking(dest) },
+    ];
+  }
+  if (type === 'ticket') {
+    return [
+      { label: '🎟 KKday 訂票', cls: 'ticket', href: `https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID` },
+      { label: '🎟 Klook', cls: 'klook', href: `https://www.klook.com/zh-TW/search/?query=${q}&aid=YOUR_KLOOK_AID` },
+    ];
+  }
+  if (type === 'tour') {
+    return [
+      { label: '🗺 KKday 報名', cls: 'tour', href: `https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID` },
+    ];
+  }
+  return [];
+}
+
+// ── Day stepper ──
+let days = 5;
+const MIN = 2, MAX = 14;
+function chD(d) {
+  days = Math.max(MIN, Math.min(MAX, days + d));
+  document.getElementById('dn').textContent = days;
+  document.getElementById('nt').textContent = (days - 1) + '夜';
+  document.getElementById('bm').disabled = days <= MIN;
+  document.getElementById('bp').disabled = days >= MAX;
+}
+chD(0);
+
+// ── Destination input ──
+const di = document.getElementById('di');
+const xc = document.getElementById('xc');
+di.addEventListener('input', () => xc.classList.toggle('on', di.value.length > 0));
+di.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+function clrDest() { di.value = ''; xc.classList.remove('on'); di.focus(); }
+function setD(v) { di.value = v; xc.classList.add('on'); di.focus(); }
+
+// ── Interest pills ──
+document.getElementById('ips').addEventListener('click', e => {
+  const p = e.target.closest('.ip');
+  if (p) p.classList.toggle('on');
+});
+function getInts() {
+  return [...document.querySelectorAll('.ip.on')].map(p => p.dataset.v).join('、') || '觀光';
+}
+
+// ── Toggle day body ──
+function tog(id) {
+  document.getElementById('db' + id).classList.toggle('op');
+  document.getElementById('dc' + id).classList.toggle('op');
+}
+
+// ── Main generate ──
+async function go() {
+  const dest = di.value.trim();
+  if (!dest) {
+    di.focus();
+    di.style.borderColor = 'rgba(255,80,80,0.7)';
+    setTimeout(() => di.style.borderColor = '', 1200);
+    return;
+  }
+  const ints = getInts();
+  const out = document.getElementById('out');
+  const btn = document.getElementById('gb');
+  btn.disabled = true; btn.textContent = '⏳ 規劃中…';
+  document.getElementById('affNote').style.display = 'none';
+  out.innerHTML = `<div class="spin-wrap"><div class="spin"></div><div class="spin-txt">AI 正在規劃 ${dest} ${days} 天行程…</div></div>`;
+
+  const prompt = `你是專業旅遊顧問，服務對象是從台灣桃園出發的旅客。請規劃「${dest}」${days}天（${days-1}夜）旅遊行程，偏好：${ints}。
+
+回傳純 JSON（禁止 markdown code block，禁止說明文字）：
+{
+  "dest": "${dest}",
+  "days": ${days},
+  "budget_twd": 預估總費用台幣整數,
+  "highlight": "15字內亮點",
+  "tips": ["實用技巧1","實用技巧2","實用技巧3"],
+  "hotels": [
+    {"tier":"平價","name":"真實飯店名（當地語言+中文）","area":"區域","price_twd":"每晚TWD範圍"},
+    {"tier":"中高級","name":"...","area":"...","price_twd":"..."},
+    {"tier":"奢華","name":"...","area":"...","price_twd":"..."}
+  ],
+  "itinerary": [
+    {
+      "day": 1,
+      "title": "當天標題",
+      "city": "城市名",
+      "emoji": "emoji",
+      "morning": [
+        {"icon":"emoji","name":"景點/活動名稱","desc":"35字內描述","cost":"費用或免費","aff_type":"none/ticket/tour"}
+      ],
+      "afternoon": [...],
+      "evening": [
+        {"icon":"emoji","name":"住宿check-in或晚餐","desc":"...","cost":"...","aff_type":"hotel/none"}
+      ]
+    }
+  ]
+}
+
+aff_type 規則：
+- 景點門票/主題樂園/博物館 → "ticket"
+- 半日遊/一日遊行程 → "tour"  
+- 住宿相關活動（check-in/飯店介紹）→ "hotel"
+- 一般景點/餐廳/交通 → "none"
+
+規則：Day1=抵達日，Day${days}=返程日（早上採購下午機場）。每時段1–2活動。繁體中文。`;
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!res.ok) throw new Error(`錯誤 ${res.status}`);
+    const data = await res.json();
+    const raw = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const json = JSON.parse(raw.replace(/```json|```/gi, '').trim());
+    render(json);
+    document.getElementById('affNote').style.display = 'block';
+  } catch(e) {
+    out.innerHTML = `<div class="errbox">⚠️ ${e.message || '發生錯誤，請重試'}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ 生成行程';
+  }
+}
+
+// ── Render results ──
+function render(d) {
+  const out = document.getElementById('out');
+  const bud = d.budget_twd ? 'TWD ' + Number(d.budget_twd).toLocaleString() : '—';
+
+  // Summary bar
+  let h = `
+  <div class="sumbar">
+    <div class="si"><span class="sl">目的地</span><span class="sv">📍 ${d.dest}</span></div>
+    <div class="si"><span class="sl">天數</span><span class="sv">${d.days}天 ${d.days-1}夜</span></div>
+    <div class="si"><span class="sl">預估費用（一人）</span><span class="sv">${bud}</span></div>
+    <div class="si shi"><span class="sl">亮點</span><span class="sv">${d.highlight||''}</span></div>
+  </div>`;
+
+  // Tips
+  if (d.tips?.length) {
+    h += `<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
+  }
+
+  // 聯盟行銷 — 住宿搜尋橫幅
+  h += `
+  <div class="aff-banner">
+    <div class="aff-banner-txt">
+      <div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div>
+      <div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div>
+    </div>
+    <div class="aff-links">
+      <a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda 搜尋</a>
+      <a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking.com</a>
+      <a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday 行程</a>
+      <a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook 票券</a>
+    </div>
+  </div>`;
+
+  // 住宿推薦卡（帶訂房連結）
+  if (d.hotels?.length) {
+    h += `
+    <div class="hotel-section">
+      <div class="hotel-sec-title">🏨 住宿推薦（${d.dest}）</div>
+      <div class="hotel-cards">`;
+    d.hotels.forEach(hotel => {
+      const searchQ = encodeURIComponent(hotel.name + ' ' + d.dest);
+      h += `
+      <div class="hotel-card">
+        <div class="hotel-tier">${hotel.tier}</div>
+        <div class="hotel-name">${hotel.name}</div>
+        <div class="hotel-price">📍 ${hotel.area}・${hotel.price_twd}/晚</div>
+        <a class="hotel-book" href="https://www.agoda.com/search?hotel=${searchQ}&tag=YOUR_AGODA_SITE_ID" target="_blank" rel="noopener">查看價格 →</a>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // Day cards
+  h += `<div class="daylist" style="margin-top:12px">`;
+  (d.itinerary || []).forEach((day, i) => {
+    h += `
+    <div class="dc">
+      <div class="dh" onclick="tog(${day.day})">
+        <div class="dbadge">D${day.day}</div>
+        <div class="dinfo">
+          <div class="dtitle">${day.emoji||''} ${day.title}</div>
+          <span class="dcity">${day.city}</span>
+        </div>
+        <span class="dchev${i===0?' op':''}" id="dc${day.day}">▼</span>
+      </div>
+      <div class="dbody${i===0?' op':''}" id="db${day.day}">`;
+
+    [['morning','早上'],['afternoon','下午'],['evening','晚上']].forEach(([k,lbl]) => {
+      const acts = day[k];
+      if (!acts?.length) return;
+      h += `<div class="slot"><div class="slbl">${lbl}</div>`;
+      acts.forEach(a => {
+        const links = affLinks(a.aff_type, d.dest, a.name);
+        h += `
+        <div class="arow">
+          <span class="aico">${a.icon||'📍'}</span>
+          <div class="abody">
+            <div class="aname">${a.name}</div>
+            <div class="adesc">${a.desc}</div>
+            <div class="ameta">
+              ${a.cost ? `<span class="atag">${a.cost}</span>` : ''}
+            </div>
+            ${links.length ? `<div class="aff-inline">${links.map(l=>`<a class="aff-sm ${l.cls}" href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>` : ''}
+          </div>
+        </div>`;
+      });
+      h += `</div>`;
+    });
+    h += `</div></div>`;
+  });
+  h += `</div>`;
+  out.innerHTML = h;
+}
+</script>
+</body>
+</html>
