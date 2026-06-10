@@ -211,6 +211,24 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,248,244,0.92);backdrop
 .act-img-credit a{color:rgba(255,255,255,0.25);text-decoration:none}
 .act-img-credit a:hover{color:rgba(255,255,255,0.5)}
 
+
+/* ── LIGHTBOX ── */
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.lightbox.open{opacity:1;pointer-events:all}
+.lightbox-inner{position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:10px}
+.lightbox-img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;transform:scale(0.92);transition:transform .25s;cursor:zoom-in;user-select:none}
+.lightbox.open .lightbox-img{transform:scale(1)}
+.lightbox-img.zoomed{transform:scale(1.8)!important;cursor:zoom-out}
+.lightbox-close{position:fixed;top:20px;right:24px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:22px;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:10000}
+.lightbox-close:hover{background:rgba(255,255,255,0.25)}
+.lightbox-credit{font-size:11px;color:rgba(255,255,255,0.4);text-align:center}
+.lightbox-credit a{color:rgba(255,255,255,0.5);text-decoration:none}
+.lightbox-credit a:hover{color:#fff}
+.lightbox-hint{font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px}
+/* make activity images clickable */
+.act-img-wrap{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.act-img-wrap:hover{transform:scale(1.04);box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+
 /* ── LOADING / ERROR ── */
 .spin-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:3rem 1rem}
 .spin{width:32px;height:32px;border:2.5px solid rgba(255,255,255,0.1);border-top-color:var(--green-bright);border-radius:50%;animation:sp .7s linear infinite}
@@ -631,9 +649,15 @@ async function fetchActivityImage(query, elementId) {
     if (!photo) return;
     const wrap = document.getElementById(elementId);
     if (!wrap) return;
+    const creditHtml = `Photo by <a href="${photo.user.links.html}?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">${photo.user.name}</a> on <a href="https://unsplash.com/?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+    const fullSrc = photo.urls.regular;
+    const smallSrc = photo.urls.small;
+    const altText = photo.alt_description || query;
     wrap.innerHTML = `
-      <img class="act-img loading" src="${photo.urls.small}" alt="${photo.alt_description||query}" onload="this.classList.remove('loading');this.classList.add('loaded')">
-      <div class="act-img-credit">Photo by <a href="${photo.user.links.html}?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">${photo.user.name}</a> on <a href="https://unsplash.com/?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></div>
+      <img class="act-img loading" src="${smallSrc}" alt="${altText}"
+        onload="this.classList.remove('loading');this.classList.add('loaded')"
+        onclick="openLightbox('${fullSrc}', '${altText.replace(/'/g,"\'")}', '${creditHtml.replace(/'/g,"\'")}')">
+      <div class="act-img-credit">${creditHtml}</div>
     `;
   } catch(e) {
     // silently fail, no image shown
@@ -783,6 +807,46 @@ function render(d) {
   h += `</div>`;
   out.innerHTML = h;
 }
+
+// ── Lightbox ──
+function openLightbox(src, alt, credit) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  const cred = document.getElementById('lightboxCredit');
+  img.src = src;
+  img.alt = alt || '';
+  img.classList.remove('zoomed');
+  cred.innerHTML = credit || '';
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lightbox-close')) return;
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function toggleZoom(e) {
+  e.stopPropagation();
+  e.target.classList.toggle('zoomed');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+
 </script>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div class="lightbox-inner">
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" onclick="toggleZoom(event)">
+    <div class="lightbox-credit" id="lightboxCredit"></div>
+    <div class="lightbox-hint">點擊圖片放大／縮小 · 點擊背景關閉</div>
+  </div>
+</div>
+
 </body>
 </html>
