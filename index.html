@@ -175,15 +175,13 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,248,244,0.92);backdrop
 .daylist{display:flex;flex-direction:column;gap:8px}
 .dc{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;overflow:hidden}
 .dh{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .12s}
-.dh:hover{background:rgba(255,255,255,0.04)}
+
 .dbadge{width:34px;height:34px;border-radius:8px;background:var(--green-bright);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
 .dinfo{flex:1}
 .dtitle{font-size:13px;font-weight:500;color:#fff}
 .dcity{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(45,158,95,0.2);color:#7dd4a8;margin-top:3px;display:inline-block}
-.dchev{color:rgba(255,255,255,0.25);font-size:14px;transition:transform .18s;flex-shrink:0}
-.dchev.op{transform:rotate(180deg)}
-.dbody{display:none;border-top:1px solid rgba(255,255,255,0.06);padding:14px 16px}
-.dbody.op{display:block}
+.dbody{border-top:1px solid rgba(255,255,255,0.06);padding:14px 16px}
+
 .slot{margin-bottom:12px}
 .slot:last-child{margin-bottom:0}
 .slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:6px;font-weight:500}
@@ -591,10 +589,6 @@ function getInts() {
   return [...document.querySelectorAll('.ip.on')].map(p => p.dataset.v).join('、') || '觀光';
 }
 
-function tog(id) {
-  document.getElementById('db'+id).classList.toggle('op');
-  document.getElementById('dc'+id).classList.toggle('op');
-}
 
 
 async function go() {
@@ -703,15 +697,14 @@ function render(d) {
   h += `<div class="daylist">`;
   (d.itinerary||[]).forEach((day,i) => {
     h += `<div class="dc">
-      <div class="dh" onclick="tog(${day.day})">
+      <div class="dh">
         <div class="dbadge">D${day.day}</div>
         <div class="dinfo">
           <div class="dtitle">${day.emoji||''} ${day.title}</div>
           <span class="dcity">${day.city}</span>
         </div>
-        <span class="dchev${i===0?' op':''}" id="dc${day.day}">▼</span>
       </div>
-      <div class="dbody${i===0?' op':''}" id="db${day.day}">`;
+      <div class="dbody" id="db${day.day}">`;
 
     [['morning','早上'],['afternoon','下午'],['evening','晚上']].forEach(([k,lbl]) => {
       const acts = day[k];
