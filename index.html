@@ -529,7 +529,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
           <div class="opt-g">
             <div class="opt-g-label">旅伴類型（單選）</div>
             <div class="opt-pills" id="companionPills">
-              <button class="op on-purple on" data-v="一個人獨旅">👤 一個人</button>
+              <button class="op on" style="background:var(--green);border-color:var(--green);color:#fff" data-v="一個人獨旅">👤 一個人</button>
               <button class="op on-purple" data-v="情侶浪漫旅遊">👫 情侶</button>
               <button class="op on-purple" data-v="親子家庭旅遊">👨‍👩‍👧 親子</button>
               <button class="op on-purple" data-v="朋友團體旅遊">👥 朋友團</button>
@@ -540,7 +540,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
             <div class="opt-g-label">預算等級（單選）</div>
             <div class="opt-pills" id="budgetPills">
               <button class="op on-amber" data-v="省錢背包客預算（每人每日 TWD 1500 以下）">💰 省錢背包</button>
-              <button class="op on-amber on" data-v="一般旅遊預算（每人每日 TWD 1500–4000）">💰💰 一般旅遊</button>
+              <button class="op on" style="background:var(--green);border-color:var(--green);color:#fff" data-v="一般旅遊預算（每人每日 TWD 1500–4000）">💰💰 一般旅遊</button>
               <button class="op on-amber" data-v="享受型旅遊預算（每人每日 TWD 4000 以上）">💰💰💰 享受旅遊</button>
             </div>
           </div>
@@ -706,6 +706,16 @@ function setD(v){di.value=v;xc.classList.add('on');}
     if(!p) return;
     document.querySelectorAll('#'+id+' .op').forEach(x=>x.classList.remove('on'));
     p.classList.add('on');
+    // force green active style
+    p.style.background='var(--green)';
+    p.style.borderColor='var(--green)';
+    p.style.color='#fff';
+    // reset others
+    document.querySelectorAll('#'+id+' .op').forEach(x=>{
+      if(!x.classList.contains('on')){
+        x.style.background='';x.style.borderColor='';x.style.color='';
+      }
+    });
   });
 });
 
