@@ -187,7 +187,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,248,244,0.92);backdrop
 .slot{margin-bottom:12px}
 .slot:last-child{margin-bottom:0}
 .slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:6px;font-weight:500}
-.arow{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start}
+.arow{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start;flex-wrap:wrap}
 .arow:last-child{border-bottom:none}
 .aico{font-size:17px;flex-shrink:0;margin-top:1px}
 .abody{flex:1}
@@ -200,6 +200,16 @@ nav{position:sticky;top:0;z-index:100;background:rgba(250,248,244,0.92);backdrop
 .aff-sm.hotel{background:rgba(0,53,128,0.5);color:#90b8f0;border:1px solid rgba(0,53,128,0.4)}
 .aff-sm.ticket{background:rgba(255,87,34,0.2);color:#ffaa80;border:1px solid rgba(255,87,34,0.3)}
 .aff-sm.tour{background:rgba(255,92,28,0.2);color:#ffaa80;border:1px solid rgba(255,92,28,0.3)}
+
+
+/* ── ACTIVITY IMAGES ── */
+.act-img-wrap{width:80px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,0.08)}
+.act-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.act-img.loading{opacity:0}
+.act-img.loaded{opacity:1}
+.act-img-credit{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px;text-align:right}
+.act-img-credit a{color:rgba(255,255,255,0.25);text-decoration:none}
+.act-img-credit a:hover{color:rgba(255,255,255,0.5)}
 
 /* ── LOADING / ERROR ── */
 .spin-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:3rem 1rem}
@@ -542,6 +552,7 @@ footer{background:var(--green-deep);padding:3rem 2rem}
 
 <script>
 const WORKER_URL = "https://fragrant-bush-aaff.jocker96963.workers.dev";
+const UNSPLASH_KEY = "oSSnd9toA0bcbT4bnk99Fh0Dbkhc9fZX1SJELTiCPaM";
 
 const AFF = {
   agoda:   (dest) => `https://www.agoda.com/search?city=${encodeURIComponent(dest)}&tag=YOUR_AGODA_SITE_ID`,
@@ -593,6 +604,40 @@ function getInts() {
 function tog(id) {
   document.getElementById('db'+id).classList.toggle('op');
   document.getElementById('dc'+id).classList.toggle('op');
+}
+
+
+// ── Unsplash Image Fetcher ──
+const imgCache = {};
+async function fetchActivityImage(query, elementId) {
+  const cacheKey = query.toLowerCase();
+  try {
+    let data;
+    if (imgCache[cacheKey]) {
+      data = imgCache[cacheKey];
+    } else {
+      const res = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
+        { headers: { Authorization: `Client-ID ${UNSPLASH_KEY}` } }
+      );
+      data = await res.json();
+      imgCache[cacheKey] = data;
+      // trigger download as required by Unsplash guidelines
+      if (data.results?.[0]?.links?.download_location) {
+        fetch(data.results[0].links.download_location + `&client_id=${UNSPLASH_KEY}`);
+      }
+    }
+    const photo = data.results?.[0];
+    if (!photo) return;
+    const wrap = document.getElementById(elementId);
+    if (!wrap) return;
+    wrap.innerHTML = `
+      <img class="act-img loading" src="${photo.urls.small}" alt="${photo.alt_description||query}" onload="this.classList.remove('loading');this.classList.add('loaded')">
+      <div class="act-img-credit">Photo by <a href="${photo.user.links.html}?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">${photo.user.name}</a> on <a href="https://unsplash.com/?utm_source=wandr&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></div>
+    `;
+  } catch(e) {
+    // silently fail, no image shown
+  }
 }
 
 async function go() {
@@ -717,15 +762,19 @@ function render(d) {
       h += `<div class="slot"><div class="slbl">${lbl}</div>`;
       acts.forEach(a => {
         const links = affLinks(a.aff_type, d.dest, a.name);
+        const imgId = `img_${day.day}_${k}_${acts.indexOf(a)}`;
+        const imgQuery = `${a.name} ${d.dest}`;
         h += `<div class="arow">
           <span class="aico">${a.icon||'📍'}</span>
-          <div class="abody">
+          <div class="abody" style="flex:1">
             <div class="aname">${a.name}</div>
             <div class="adesc">${a.desc}</div>
             ${a.cost?`<span class="atag">${a.cost}</span>`:''}
             ${links.length?`<div class="aff-inline">${links.map(l=>`<a class="aff-sm ${l.cls}" href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>`:''}
           </div>
+          <div class="act-img-wrap" id="${imgId}"><div style="width:100%;height:100%;background:rgba(255,255,255,0.05);border-radius:8px"></div></div>
         </div>`;
+        setTimeout(() => fetchActivityImage(imgQuery, imgId), acts.indexOf(a) * 200 + parseInt(day.day) * 100);
       });
       h += `</div>`;
     });
