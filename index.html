@@ -3,440 +3,639 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wandr — AI 旅遊行程規劃器｜從台灣出發的免費旅遊規劃工具</title>
-<meta name="description" content="輸入目的地與天數，AI 立即生成專屬旅遊行程，含住宿推薦、景點門票、預算估算。支援全球所有目的地。">
+<title>Wandr — AI 智慧旅遊規劃｜免費生成專屬行程</title>
+<meta name="description" content="輸入目的地與天數，AI 30秒生成專屬旅遊行程，含住宿推薦、景點門票、預算估算。支援全球所有目的地。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--green-deep:#0a2e1a;--green-mid:#1a5c35;--green-bright:#2d9e5f;--green-light:#e6f5ed;--cream:#faf8f4;--sand:#f0ebe0;--text:#1a1a18;--muted:#6b6b68;--border:#e2ddd4;--white:#ffffff;--accent:#e8673a}
+:root{
+  --bg:#ffffff;
+  --bg2:#f7f7f7;
+  --bg3:#f0ede8;
+  --text:#1a1a1a;
+  --text2:#555;
+  --text3:#888;
+  --border:#e8e8e8;
+  --green:#00855a;
+  --green-dark:#006648;
+  --green-light:#e8f5f0;
+  --accent:#ff6b35;
+  --accent-light:#fff3ee;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans','Noto Sans TC',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+body{font-family:'Inter','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+img{max-width:100%}
+a{text-decoration:none;color:inherit}
 
-/* NAV */
-nav{position:sticky;top:0;z-index:100;background:rgba(250,248,244,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
-.nav-inner{max-width:1100px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
-.nav-logo-mark{width:32px;height:32px;background:var(--green-deep);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.nav-logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:var(--green-deep)}
-.nav-links{display:flex;align-items:center;gap:24px}
-.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .15s}
-.nav-links a:hover{color:var(--text)}
-.nav-cta{padding:8px 18px;background:var(--green-deep);color:#fff;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none}
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:2rem}
+.nav-logo{display:flex;align-items:center;gap:8px;font-family:'DM Serif Display',serif;font-size:22px;color:var(--green-dark)}
+.nav-logo-icon{width:34px;height:34px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:14px;color:var(--text2);font-weight:500;transition:color .15s}
+.nav-links a:hover{color:var(--green)}
+.nav-btn{padding:9px 20px;background:var(--green);color:#fff;border-radius:10px;font-size:14px;font-weight:600;transition:background .15s}
+.nav-btn:hover{background:var(--green-dark)}
 
-/* HERO */
-.hero{background:var(--green-deep);padding:5rem 2rem 4rem;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(45,158,95,0.25) 0%,transparent 70%);pointer-events:none}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(45,158,95,0.2);border:1px solid rgba(45,158,95,0.3);color:#7dd4a8;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:1.5rem}
-.hero-title{font-family:'DM Serif Display',serif;font-size:52px;line-height:1.08;color:#fff;margin-bottom:1.2rem;letter-spacing:-1px}
-.hero-title em{color:#7dd4a8;font-style:italic}
-.hero-sub{font-size:16px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:2rem;max-width:420px}
-.hero-stats{display:flex;gap:2rem}
-.hero-stat-num{font-family:'DM Serif Display',serif;font-size:28px;color:#fff}
-.hero-stat-label{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px}
-.hero-right{}
-.hero-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:1.5rem;backdrop-filter:blur(10px)}
-.hero-card-tag{font-size:11px;color:#7dd4a8;letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem}
-.hero-card-dest{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;margin-bottom:4px}
-.hero-card-meta{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:1.2rem}
-.hero-card-days{display:flex;flex-direction:column;gap:8px}
-.hero-day-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 12px}
-.hero-day-num{width:28px;height:28px;background:var(--green-bright);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;flex-shrink:0}
-.hero-day-text{font-size:13px;color:rgba(255,255,255,0.8)}
-.hero-day-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
-.hero-card-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(232,103,58,0.2);border:1px solid rgba(232,103,58,0.3);color:#f4a07a;font-size:11px;padding:4px 10px;border-radius:20px;margin-top:1rem}
+/* ── HERO ── */
+.hero{background:linear-gradient(160deg,#003d2a 0%,#006648 40%,#00a06e 80%,#00c88a 100%);min-height:580px;display:flex;align-items:center;position:relative;overflow:hidden;padding:4rem 2rem}
+.hero-pattern{position:absolute;inset:0;opacity:0.06;background-image:radial-gradient(circle at 20% 50%,#fff 1px,transparent 1px),radial-gradient(circle at 80% 20%,#fff 1px,transparent 1px),radial-gradient(circle at 60% 80%,#fff 1px,transparent 1px);background-size:60px 60px,40px 40px,80px 80px}
+.hero-inner{max-width:900px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.9);font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;margin-bottom:1.5rem;letter-spacing:0.5px}
+.hero-title{font-family:'DM Serif Display',serif;font-size:56px;color:#fff;line-height:1.1;margin-bottom:1rem;letter-spacing:-1px}
+.hero-title em{font-style:italic;color:#7dffd4}
+.hero-sub{font-size:18px;color:rgba(255,255,255,0.75);margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7}
 
-/* SECTION */
-.section{padding:5rem 2rem}
-.section-inner{max-width:1100px;margin:0 auto}
-.section-eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--green-bright);margin-bottom:10px;font-weight:500}
-.section-title{font-family:'DM Serif Display',serif;font-size:38px;color:var(--green-deep);margin-bottom:1rem;letter-spacing:-0.5px;line-height:1.15}
-.section-sub{font-size:15px;color:var(--muted);line-height:1.7;max-width:520px}
+/* ── SEARCH BOX (Airbnb style) ── */
+.search-box{background:#fff;border-radius:20px;padding:8px;display:flex;align-items:center;gap:0;box-shadow:0 4px 32px rgba(0,0,0,0.2);max-width:680px;margin:0 auto}
+.search-field{flex:1;padding:12px 20px;border:none;outline:none;font-size:15px;font-family:inherit;background:transparent;color:var(--text)}
+.search-field::placeholder{color:var(--text3)}
+.search-divider{width:1px;height:36px;background:var(--border)}
+.search-days{display:flex;align-items:center;gap:0;padding:0 8px}
+.search-day-btn{background:none;border:none;color:var(--text2);font-size:20px;width:36px;height:36px;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .13s}
+.search-day-btn:hover{background:var(--bg2)}
+.search-day-num{font-size:15px;font-weight:600;color:var(--text);min-width:28px;text-align:center}
+.search-day-label{font-size:13px;color:var(--text3);white-space:nowrap;padding-right:8px}
+.search-submit{padding:12px 28px;background:var(--green);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.search-submit:hover{background:var(--green-dark)}
+.search-submit:disabled{opacity:0.6;cursor:default}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:1.2rem}
+.hero-chip{padding:6px 14px;font-size:13px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);transition:all .13s;font-family:inherit}
+.hero-chip:hover{background:rgba(255,255,255,0.22);color:#fff}
+.hero-stats{display:flex;gap:2.5rem;justify-content:center;margin-top:2.5rem}
+.hero-stat{text-align:center}
+.hero-stat-n{font-family:'DM Serif Display',serif;font-size:26px;color:#fff}
+.hero-stat-l{font-size:12px;color:rgba(255,255,255,0.55);margin-top:2px}
 
-/* HOW */
-.how-section{background:var(--white)}
-.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
-.how-card{padding:2rem;background:var(--cream);border-radius:16px;border:1px solid var(--border);position:relative}
-.how-num{font-family:'DM Serif Display',serif;font-size:48px;color:var(--green-light);position:absolute;top:1rem;right:1.5rem;line-height:1}
-.how-icon{font-size:28px;margin-bottom:1rem}
-.how-title{font-size:15px;font-weight:500;color:var(--green-deep);margin-bottom:6px}
-.how-desc{font-size:13px;color:var(--muted);line-height:1.65}
+/* ── POPULAR DESTINATIONS ── */
+.dest-section{padding:4rem 2rem;background:var(--bg)}
+.dest-inner{max-width:1200px;margin:0 auto}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem}
+.section-label{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+.section-title{font-family:'DM Serif Display',serif;font-size:32px;color:var(--text);letter-spacing:-0.5px}
+.section-link{font-size:14px;color:var(--green);font-weight:500}
+.dest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.dest-card{border-radius:16px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:3/4;transition:transform .2s,box-shadow .2s}
+.dest-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.dest-card.large{grid-row:span 2;aspect-ratio:auto}
+.dest-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .3s}
+.dest-card:hover .dest-bg{transform:scale(1.04)}
+.dest-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,transparent 50%)}
+.dest-info{position:absolute;bottom:0;left:0;right:0;padding:1.2rem}
+.dest-name{font-size:16px;font-weight:600;color:#fff}
+.dest-meta{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px}
+.dest-tag{display:inline-block;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-top:6px}
 
-/* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:3rem}
-.feat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.5rem;display:flex;gap:1rem;align-items:flex-start;transition:box-shadow .15s}
-.feat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07)}
-.feat-icon{width:40px;height:40px;background:var(--green-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.feat-title{font-size:14px;font-weight:500;color:var(--green-deep);margin-bottom:4px}
-.feat-desc{font-size:13px;color:var(--muted);line-height:1.6}
+/* ── HOW IT WORKS ── */
+.how-section{padding:4rem 2rem;background:var(--bg2)}
+.how-inner{max-width:1100px;margin:0 auto}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2.5rem}
+.how-card{background:var(--bg);border-radius:20px;padding:2rem;border:1px solid var(--border);position:relative;overflow:hidden}
+.how-num{position:absolute;top:1.2rem;right:1.5rem;font-family:'DM Serif Display',serif;font-size:52px;color:var(--green-light);line-height:1;font-weight:400}
+.how-icon-wrap{width:52px;height:52px;background:var(--green-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:1.2rem}
+.how-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px}
+.how-desc{font-size:14px;color:var(--text2);line-height:1.7}
 
-/* PLANNER SECTION */
-.planner-section{background:var(--green-deep);padding:4rem 2rem}
-.planner-inner{max-width:1000px;margin:0 auto}
-.planner-header{text-align:center;margin-bottom:2.5rem}
-.planner-header .section-eyebrow{color:#7dd4a8}
-.planner-header .section-title{color:#fff}
-.planner-header .section-sub{color:rgba(255,255,255,0.55);margin:0 auto}
+/* ── FEATURES ── */
+.feat-section{padding:4rem 2rem;background:var(--bg)}
+.feat-inner{max-width:1100px;margin:0 auto}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2.5rem}
+.feat-card{padding:1.5rem;border-radius:16px;border:1px solid var(--border);background:var(--bg);transition:box-shadow .15s,transform .15s}
+.feat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.feat-icon{font-size:26px;margin-bottom:10px}
+.feat-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.65}
 
-/* PLANNER CARD */
-.planner-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;backdrop-filter:blur(10px)}
-.planner-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem}
-.planner-field{display:flex;flex-direction:column;gap:6px}
-.planner-field.grow{flex:1;min-width:200px}
-.field-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.45)}
-.dest-wrap{position:relative}
-.dest-in{width:100%;padding:11px 38px 11px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border .15s}
-.dest-in::placeholder{color:rgba(255,255,255,0.3)}
-.dest-in:focus{border-color:rgba(45,158,95,0.6);background:rgba(255,255,255,0.12)}
-.xclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:15px;padding:2px;display:none}
-.xclear.on{display:block}
-.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.chip{padding:4px 10px;font-size:11px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);transition:all .13s;font-family:inherit}
-.chip:hover{background:rgba(255,255,255,0.14);color:#fff}
-.stepper{display:inline-flex;align-items:center;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;overflow:hidden}
-.sbtn{background:none;border:none;color:#fff;font-size:20px;width:40px;height:40px;cursor:pointer;transition:background .13s;font-family:inherit;display:flex;align-items:center;justify-content:center}
-.sbtn:hover:not(:disabled){background:rgba(255,255,255,0.12)}
-.sbtn:disabled{opacity:.3;cursor:default}
-.snum{font-size:17px;font-weight:500;color:#fff;min-width:32px;text-align:center}
-.snite{font-size:12px;color:rgba(255,255,255,0.45);margin-left:8px;align-self:flex-end;padding-bottom:2px}
+/* ── PLANNER SECTION ── */
+.planner-section{padding:4rem 2rem;background:var(--bg3)}
+.planner-inner{max-width:960px;margin:0 auto}
+.planner-head{text-align:center;margin-bottom:2rem}
+.planner-card{background:var(--bg);border-radius:24px;box-shadow:var(--shadow-lg);overflow:hidden}
+.planner-top{background:linear-gradient(135deg,#003d2a,#006648);padding:1.5rem 2rem}
+.planner-top-title{font-size:16px;font-weight:600;color:#fff;margin-bottom:4px}
+.planner-top-sub{font-size:13px;color:rgba(255,255,255,0.6)}
+.planner-body{padding:2rem}
+.planner-row{display:flex;flex-wrap:wrap;gap:1.2rem;margin-bottom:1.5rem}
+.pf{display:flex;flex-direction:column;gap:5px}
+.pf.grow{flex:1;min-width:200px}
+.pf-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.pi{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+.pi:focus{border-color:var(--green)}
+.pi::placeholder{color:var(--text3)}
+.pi-wrap{position:relative}
+.pi-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;display:none}
+.pi-clear.on{display:block}
+.pchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pchip{padding:4px 10px;font-size:12px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .13s;font-family:inherit}
+.pchip:hover{border-color:var(--green);color:var(--green)}
+.pstepper{display:inline-flex;align-items:center;border:1.5px solid var(--border);border-radius:10px;overflow:hidden}
+.pstep{background:none;border:none;font-size:20px;width:40px;height:40px;cursor:pointer;color:var(--text2);transition:background .13s;display:flex;align-items:center;justify-content:center}
+.pstep:hover:not(:disabled){background:var(--bg2)}
+.pstep:disabled{opacity:.3;cursor:default}
+.pstep-num{font-size:16px;font-weight:600;min-width:28px;text-align:center;color:var(--text)}
+.pstep-night{font-size:13px;color:var(--text3);margin-left:8px;align-self:flex-end;padding-bottom:2px}
 
-/* OPTION GROUPS (旅伴、預算、偏好) */
-.opt-groups{display:flex;flex-direction:column;gap:14px;margin-bottom:1.5rem}
-.opt-group{display:flex;flex-direction:column;gap:7px}
-.opt-group-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+/* ── OPTION GROUPS ── */
+.opt-groups{display:flex;flex-direction:column;gap:16px;margin-bottom:1.5rem}
+.opt-g{display:flex;flex-direction:column;gap:8px}
+.opt-g-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
 .opt-pills{display:flex;gap:6px;flex-wrap:wrap}
-.op{padding:7px 13px;font-size:12px;border-radius:20px;cursor:pointer;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.65);transition:all .13s;font-family:inherit}
-.op:hover{background:rgba(255,255,255,0.14);color:#fff}
-.op.on{background:rgba(45,158,95,0.35);border-color:rgba(45,158,95,0.6);color:#7dd4a8;font-weight:500}
-/* 旅伴單選 */
-.op.solo-group.on{background:rgba(100,100,220,0.3);border-color:rgba(100,100,220,0.5);color:#b0b8ff}
-/* 預算單選 */
-.op.budget-group.on{background:rgba(220,160,50,0.3);border-color:rgba(220,160,50,0.5);color:#ffd97a}
+.op{padding:7px 14px;font-size:13px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .13s;font-family:inherit;font-weight:500}
+.op:hover{border-color:var(--green);color:var(--green);background:#fff}
+.op.on{background:var(--green);border-color:var(--green);color:#fff}
+.op.on-purple{background:#6366f1;border-color:#6366f1;color:#fff}
+.op.on-amber{background:#f59e0b;border-color:#f59e0b;color:#fff}
 
-/* GEN BUTTON */
-.gen-btn{width:100%;padding:14px;font-size:15px;font-weight:500;background:var(--green-bright);color:#fff;border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.gen-btn:hover:not(:disabled){background:#258650;transform:translateY(-1px);box-shadow:0 4px 20px rgba(45,158,95,0.4)}
-.gen-btn:disabled{opacity:.5;cursor:default;transform:none}
+/* ── GEN BUTTON ── */
+.gen-btn{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover:not(:disabled){background:var(--green-dark);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,133,90,0.3)}
+.gen-btn:disabled{opacity:.55;cursor:default;transform:none}
 
-/* RESULTS */
+/* ── RESULTS ── */
 .results-wrap{margin-top:2rem}
-.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;color:rgba(255,255,255,0.25);gap:10px}
-.ph-ico{font-size:40px;opacity:.3}
-.ph-txt{font-size:13px;text-align:center;line-height:1.65}
+.ph{display:flex;flex-direction:column;align-items:center;padding:3rem 1rem;color:var(--text3);gap:10px}
+.ph-ico{font-size:48px;opacity:.3}
+.ph-txt{font-size:14px;text-align:center;line-height:1.7}
 
-/* SUMMARY BAR */
-.sumbar{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:20px;align-items:center}
-.si{display:flex;flex-direction:column;gap:2px}
-.sl{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:.5px;text-transform:uppercase}
-.sv{font-size:14px;font-weight:500;color:#fff}
+/* ── SUMMARY BAR ── */
+.sumbar{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;box-shadow:var(--shadow)}
+.si{display:flex;flex-direction:column;gap:3px}
+.sl{font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.sv{font-size:15px;font-weight:600;color:var(--text)}
 .shi{flex:1;min-width:150px}
-.shi .sv{font-size:12px;font-weight:400;color:rgba(255,255,255,0.6)}
+.shi .sv{font-size:13px;font-weight:400;color:var(--text2)}
 
-/* ACTION BUTTONS */
+/* ── ACTION BAR ── */
 .action-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.act-btn{padding:8px 16px;font-size:12px;font-weight:500;border-radius:8px;cursor:pointer;border:none;font-family:inherit;transition:all .13s;display:flex;align-items:center;gap:6px}
-.act-btn.pdf{background:rgba(232,103,58,0.25);color:#f4a07a;border:1px solid rgba(232,103,58,0.35)}
-.act-btn.pdf:hover{background:rgba(232,103,58,0.4)}
-.act-btn.share{background:rgba(45,158,95,0.25);color:#7dd4a8;border:1px solid rgba(45,158,95,0.35)}
-.act-btn.share:hover{background:rgba(45,158,95,0.4)}
-.act-btn.regen{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15)}
-.act-btn.regen:hover{background:rgba(255,255,255,0.15);color:#fff}
+.act-btn{padding:9px 18px;font-size:13px;font-weight:600;border-radius:10px;cursor:pointer;border:none;font-family:inherit;transition:all .13s;display:flex;align-items:center;gap:6px}
+.act-btn.pdf{background:var(--accent-light);color:var(--accent);border:1.5px solid #ffd4c2}
+.act-btn.pdf:hover{background:#ffe4d8}
+.act-btn.share{background:var(--green-light);color:var(--green);border:1.5px solid #b8e8da}
+.act-btn.share:hover{background:#d4f0e8}
 
-/* TIPS */
-.tipsbar{background:rgba(45,158,95,0.15);border:1px solid rgba(45,158,95,0.25);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#7dd4a8;display:flex;flex-wrap:wrap;gap:10px}
+/* ── TIPS ── */
+.tipsbar{background:var(--green-light);border:1px solid #b8e8da;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--green-dark);display:flex;flex-wrap:wrap;gap:12px}
 
-/* AFF BANNER */
-.aff-banner{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* ── AFF BANNER ── */
+.aff-banner{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;box-shadow:var(--shadow)}
 .aff-banner-txt{flex:1;min-width:160px}
-.aff-banner-title{font-size:13px;font-weight:500;color:#fff;margin-bottom:3px}
-.aff-banner-sub{font-size:11px;color:rgba(255,255,255,0.4)}
-.aff-links{display:flex;gap:7px;flex-wrap:wrap}
-.aff-btn{padding:7px 14px;font-size:12px;font-weight:500;border-radius:8px;text-decoration:none;transition:opacity .13s;white-space:nowrap}
-.aff-btn:hover{opacity:.82}
+.aff-banner-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.aff-banner-sub{font-size:12px;color:var(--text3)}
+.aff-links{display:flex;gap:8px;flex-wrap:wrap}
+.aff-btn{padding:8px 16px;font-size:12px;font-weight:600;border-radius:8px;text-decoration:none;transition:opacity .13s;white-space:nowrap}
+.aff-btn:hover{opacity:.85}
 .aff-agoda{background:#5c2d91;color:#fff}
 .aff-booking{background:#003580;color:#fff}
 .aff-kkday{background:#ff5722;color:#fff}
 .aff-klook{background:#ff5c1c;color:#fff}
 
-/* HOTELS */
-.hotel-section{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:14px}
-.hotel-sec-title{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);margin-bottom:10px}
+/* ── HOTELS ── */
+.hotel-section{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.hotel-sec-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px}
 .hotel-cards{display:flex;gap:10px;flex-wrap:wrap}
-.hotel-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;flex:1;min-width:160px}
-.hotel-tier{font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
-.hotel-name{font-size:13px;font-weight:500;color:#fff;margin-bottom:3px}
-.hotel-area{font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px}
-.hotel-price{font-size:12px;color:#7dd4a8;margin-bottom:8px}
-.hotel-book{display:inline-block;padding:5px 12px;font-size:11px;font-weight:500;border-radius:6px;text-decoration:none;background:rgba(45,158,95,0.3);color:#7dd4a8;border:1px solid rgba(45,158,95,0.4);transition:all .13s}
-.hotel-book:hover{background:rgba(45,158,95,0.5)}
+.hotel-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;flex:1;min-width:160px;transition:box-shadow .15s}
+.hotel-card:hover{box-shadow:var(--shadow)}
+.hotel-tier{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.hotel-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.hotel-area{font-size:12px;color:var(--text3);margin-bottom:8px}
+.hotel-price{font-size:13px;color:var(--green);font-weight:600;margin-bottom:10px}
+.hotel-book{display:inline-block;padding:6px 14px;font-size:12px;font-weight:600;border-radius:8px;text-decoration:none;background:var(--green);color:#fff;transition:background .13s}
+.hotel-book:hover{background:var(--green-dark)}
 
-/* DAY CARDS */
-.daylist{display:flex;flex-direction:column;gap:8px}
-.dc{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;overflow:hidden}
-.dh{padding:12px 16px;display:flex;align-items:center;gap:10px}
-.dbadge{width:34px;height:34px;border-radius:8px;background:var(--green-bright);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+/* ── DAY CARDS ── */
+.daylist{display:flex;flex-direction:column;gap:10px}
+.dc{background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.dh{padding:14px 18px;display:flex;align-items:center;gap:12px;background:var(--bg)}
+.dbadge{width:36px;height:36px;border-radius:10px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .dinfo{flex:1}
-.dtitle{font-size:13px;font-weight:500;color:#fff}
-.dcity{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(45,158,95,0.2);color:#7dd4a8;margin-top:3px;display:inline-block}
-.dregen{padding:5px 10px;font-size:11px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border-radius:6px;cursor:pointer;font-family:inherit;transition:all .13s;white-space:nowrap}
-.dregen:hover{background:rgba(255,255,255,0.14);color:#fff}
-.dbody{border-top:1px solid rgba(255,255,255,0.06);padding:14px 16px}
-.slot{margin-bottom:12px}
+.dtitle{font-size:14px;font-weight:600;color:var(--text)}
+.dcity{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--green-light);color:var(--green-dark);margin-top:4px;display:inline-block;font-weight:500}
+.dregen{padding:6px 12px;font-size:12px;font-weight:500;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:8px;cursor:pointer;font-family:inherit;transition:all .13s;white-space:nowrap}
+.dregen:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.dbody{border-top:1px solid var(--border);padding:14px 18px}
+.slot{margin-bottom:14px}
 .slot:last-child{margin-bottom:0}
-.slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:6px;font-weight:500}
-.arow{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:flex-start}
+.slbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:600}
+.arow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bg2);align-items:flex-start}
 .arow:last-child{border-bottom:none}
-.aico{font-size:17px;flex-shrink:0;margin-top:1px}
+.aico{font-size:20px;flex-shrink:0;margin-top:2px}
 .abody{flex:1}
-.aname{font-size:13px;font-weight:500;color:#fff}
-.adesc{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;line-height:1.55}
-.atag{display:inline-block;font-size:11px;background:rgba(45,158,95,0.2);color:#7dd4a8;padding:2px 7px;border-radius:4px;margin-top:4px}
-.aff-inline{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
-.aff-sm{padding:4px 9px;font-size:11px;font-weight:500;border-radius:5px;text-decoration:none;transition:opacity .13s;white-space:nowrap}
+.aname{font-size:13px;font-weight:600;color:var(--text)}
+.adesc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.6}
+.atag{display:inline-block;font-size:11px;background:var(--green-light);color:var(--green-dark);padding:3px 8px;border-radius:5px;margin-top:5px;font-weight:500}
+.aff-inline{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.aff-sm{padding:4px 10px;font-size:11px;font-weight:600;border-radius:6px;text-decoration:none;transition:opacity .13s}
 .aff-sm:hover{opacity:.8}
-.aff-sm.hotel{background:rgba(0,53,128,0.5);color:#90b8f0;border:1px solid rgba(0,53,128,0.4)}
-.aff-sm.ticket{background:rgba(255,87,34,0.2);color:#ffaa80;border:1px solid rgba(255,87,34,0.3)}
-.aff-sm.tour{background:rgba(255,92,28,0.2);color:#ffaa80;border:1px solid rgba(255,92,28,0.3)}
+.aff-sm.hotel{background:#e8eef8;color:#003580;border:1px solid #c8d8f0}
+.aff-sm.ticket{background:#fff0ec;color:#cc4400;border:1px solid #ffd4c2}
+.aff-sm.tour{background:#fff3e0;color:#e65100;border:1px solid #ffd9a0}
 
-/* SHARE TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a18;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 24px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;box-shadow:var(--shadow-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* LOADING / ERROR */
-.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:3rem 1rem}
-.spin{width:32px;height:32px;border:2.5px solid rgba(255,255,255,0.1);border-top-color:var(--green-bright);border-radius:50%;animation:sp .7s linear infinite}
+/* ── LOADING / ERROR ── */
+.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:3rem 1rem}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.spin-txt{font-size:13px;color:rgba(255,255,255,0.4)}
-.errbox{background:rgba(232,103,58,0.15);border:1px solid rgba(232,103,58,0.3);border-radius:10px;padding:12px 14px;color:#f4a07a;font-size:13px}
+.spin-txt{font-size:14px;color:var(--text3)}
+.errbox{background:#fff5f5;border:1px solid #ffd4d4;border-radius:12px;padding:14px 18px;color:#cc0000;font-size:13px;font-weight:500}
 
-/* TESTIMONIALS */
-.testi-section{background:var(--sand)}
-.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
-.testi-card{background:var(--white);border-radius:16px;padding:1.5rem;border:1px solid var(--border)}
-.testi-stars{color:#f5b731;font-size:14px;margin-bottom:10px}
-.testi-text{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:1rem}
-.testi-author{display:flex;align-items:center;gap:10px}
-.testi-avatar{width:36px;height:36px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:16px}
-.testi-name{font-size:13px;font-weight:500;color:var(--green-deep)}
-.testi-trip{font-size:12px;color:var(--muted)}
+/* ── TESTIMONIALS ── */
+.testi-section{padding:4rem 2rem;background:var(--bg2)}
+.testi-inner{max-width:1100px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
+.testi-card{background:var(--bg);border-radius:20px;padding:1.8rem;border:1px solid var(--border);transition:box-shadow .15s}
+.testi-card:hover{box-shadow:var(--shadow)}
+.testi-stars{color:#f59e0b;font-size:15px;margin-bottom:12px;letter-spacing:2px}
+.testi-text{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:1.2rem}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:18px}
+.testi-name{font-size:13px;font-weight:600;color:var(--text)}
+.testi-trip{font-size:12px;color:var(--text3);margin-top:2px}
 
-/* FOOTER */
-footer{background:var(--green-deep);padding:3rem 2rem}
-.footer-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:center}
-.footer-logo{font-family:'DM Serif Display',serif;font-size:22px;color:#fff}
-.footer-links{display:flex;gap:20px}
-.footer-links a{font-size:13px;color:rgba(255,255,255,0.4);text-decoration:none}
-.footer-links a:hover{color:rgba(255,255,255,0.8)}
-.footer-copy{font-size:12px;color:rgba(255,255,255,0.25)}
-.aff-note{font-size:11px;color:rgba(255,255,255,0.25);text-align:center;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08)}
+/* ── FOOTER ── */
+footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.footer-brand{}
+.footer-logo{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;margin-bottom:12px}
+.footer-tagline{font-size:13px;color:#888;line-height:1.7;max-width:260px}
+.footer-col-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:16px}
+.footer-links-list{display:flex;flex-direction:column;gap:10px}
+.footer-links-list a{font-size:13px;color:#888;transition:color .15s}
+.footer-links-list a:hover{color:#fff}
+.footer-bottom{border-top:1px solid #1e1e1e;padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:#555}
+.footer-aff{font-size:11px;color:#444;max-width:500px;text-align:right}
 
-@media(max-width:768px){
-  .hero-inner{grid-template-columns:1fr}
-  .hero-right{display:none}
-  .hero-title{font-size:36px}
-  .how-grid,.feat-grid,.testi-grid{grid-template-columns:1fr}
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-title{font-size:38px}
+  .dest-grid{grid-template-columns:repeat(2,1fr)}
+  .how-grid,.feat-grid{grid-template-columns:1fr 1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
   .nav-links{display:none}
+  .search-box{flex-direction:column;border-radius:16px;gap:4px}
+  .search-divider{display:none}
+  .search-field{width:100%;border-bottom:1px solid var(--border)}
+  .search-submit{width:100%;justify-content:center}
+}
+@media(max-width:600px){
+  .hero-title{font-size:30px}
+  .dest-grid{grid-template-columns:1fr 1fr}
+  .how-grid,.feat-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
   .planner-row{flex-direction:column}
 }
 </style>
 </head>
 <body>
 
-<nav>
+<!-- NAV -->
+<header class="nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="#">
-      <div class="nav-logo-mark">🌍</div>
-      <span class="nav-logo-text">Wandr</span>
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">🌍</div>
+      Wandr
     </a>
-    <div class="nav-links">
-      <a href="#how">使用方式</a>
-      <a href="#features">功能特色</a>
+    <nav class="nav-links">
+      <a href="#destinations">熱門目的地</a>
+      <a href="#how">使用說明</a>
       <a href="#planner">開始規劃</a>
-      <a class="nav-cta" href="#planner">免費使用</a>
-    </div>
+    </nav>
+    <a href="#planner" class="nav-btn">✨ 免費規劃行程</a>
   </div>
-</nav>
+</header>
 
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
   <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-eyebrow">✦ AI 旅遊規劃</div>
-      <h1 class="hero-title">把旅遊夢想<br>變成<em>真實行程</em></h1>
-      <p class="hero-sub">輸入目的地與天數，30秒內獲得完整行程規劃、住宿推薦、景點門票連結與預算估算。完全免費。</p>
-      <div class="hero-stats">
-        <div><div class="hero-stat-num">全球</div><div class="hero-stat-label">所有目的地</div></div>
-        <div><div class="hero-stat-num">30秒</div><div class="hero-stat-label">生成完整行程</div></div>
-        <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">免費使用</div></div>
+    <div class="hero-badge">✦ AI 智慧旅遊規劃 · 完全免費</div>
+    <h1 class="hero-title">探索世界，<em>從這裡開始</em></h1>
+    <p class="hero-sub">輸入目的地，AI 30秒生成完整行程規劃、住宿推薦與預算估算</p>
+
+    <div class="search-box">
+      <input class="search-field" id="heroSearch" type="text" placeholder="🔍  你想去哪裡？輸入城市或國家…" autocomplete="off">
+      <div class="search-divider"></div>
+      <div class="search-days">
+        <button class="search-day-btn" id="hbm" onclick="hChD(-1)">−</button>
+        <span class="search-day-num" id="hdn">5</span>
+        <button class="search-day-btn" id="hbp" onclick="hChD(1)">+</button>
+        <span class="search-day-label">天</span>
+      </div>
+      <div class="search-divider"></div>
+      <button class="search-submit" id="heroBtn" onclick="heroSearch()">🗺 規劃行程</button>
+    </div>
+
+    <div class="hero-chips">
+      <button class="hero-chip" onclick="setHeroD('日本東京')">🇯🇵 東京</button>
+      <button class="hero-chip" onclick="setHeroD('日本大阪')">🏯 大阪</button>
+      <button class="hero-chip" onclick="setHeroD('韓國首爾')">🇰🇷 首爾</button>
+      <button class="hero-chip" onclick="setHeroD('泰國曼谷')">🇹🇭 曼谷</button>
+      <button class="hero-chip" onclick="setHeroD('峇里島')">🌴 峇里島</button>
+      <button class="hero-chip" onclick="setHeroD('法國巴黎')">🇫🇷 巴黎</button>
+      <button class="hero-chip" onclick="setHeroD('義大利羅馬')">🇮🇹 羅馬</button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-n">全球</div><div class="hero-stat-l">目的地支援</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">30秒</div><div class="hero-stat-l">生成完整行程</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">100%</div><div class="hero-stat-l">完全免費</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">AI</div><div class="hero-stat-l">客製化規劃</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POPULAR DESTINATIONS -->
+<section class="dest-section" id="destinations">
+  <div class="dest-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-label">熱門目的地</div>
+        <div class="section-title">旅人最愛的地方</div>
       </div>
     </div>
-    <div class="hero-right">
-      <div class="hero-card">
-        <div class="hero-card-tag">✦ 範例行程</div>
-        <div class="hero-card-dest">日本京都</div>
-        <div class="hero-card-meta">5天4夜 · 情侶 · 文化美食</div>
-        <div class="hero-card-days">
-          <div class="hero-day-item"><div class="hero-day-num">D1</div><div><div class="hero-day-text">抵達京都・祇園花見小路</div><div class="hero-day-sub">下午抵達 · 晚上散步</div></div></div>
-          <div class="hero-day-item"><div class="hero-day-num">D2</div><div><div class="hero-day-text">伏見稻荷・清水寺・錦市場</div><div class="hero-day-sub">全天行程 · 步行可達</div></div></div>
-          <div class="hero-day-item"><div class="hero-day-num">D3</div><div><div class="hero-day-text">嵐山竹林・金閣寺・嵯峨野</div><div class="hero-day-sub">西部精華 · 建議早出發</div></div></div>
+    <div class="dest-grid">
+      <div class="dest-card large" onclick="goToPlanner('日本東京')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460,#533483)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🇯🇵 東京</div>
+          <div class="dest-meta">Japan · Tokyo</div>
+          <div class="dest-tag">最熱門</div>
         </div>
-        <div class="hero-card-badge">🏨 住宿比價已整合</div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('韓國首爾')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#2c1654,#4a0e8f,#7b2ff7,#a855f7)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🇰🇷 首爾</div>
+          <div class="dest-meta">Korea · Seoul</div>
+        </div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('峇里島')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#0d4429,#1a7a4a,#2eb872,#7dd4a8)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🌴 峇里島</div>
+          <div class="dest-meta">Indonesia · Bali</div>
+          <div class="dest-tag">必去</div>
+        </div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('泰國曼谷')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#7c2d12,#c2410c,#ea580c,#fb923c)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🇹🇭 曼谷</div>
+          <div class="dest-meta">Thailand · Bangkok</div>
+        </div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('法國巴黎')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#1e3a5f,#1e40af,#3b82f6,#93c5fd)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🇫🇷 巴黎</div>
+          <div class="dest-meta">France · Paris</div>
+        </div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('新加坡')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#1c1917,#292524,#44403c,#78716c)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🇸🇬 新加坡</div>
+          <div class="dest-meta">Singapore</div>
+        </div>
+      </div>
+      <div class="dest-card" onclick="goToPlanner('日本大阪')">
+        <div class="dest-bg" style="background-image:linear-gradient(135deg,#881337,#be123c,#f43f5e,#fb7185)"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">🏯 大阪</div>
+          <div class="dest-meta">Japan · Osaka</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section how-section" id="how">
-  <div class="section-inner">
-    <div class="section-eyebrow">使用方式</div>
-    <h2 class="section-title">三步驟，完成旅遊規劃</h2>
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div class="section-label" style="display:inline-block">使用方式</div>
+      <div class="section-title" style="text-align:center">三步驟，30秒完成規劃</div>
+    </div>
     <div class="how-grid">
-      <div class="how-card"><div class="how-num">1</div><div class="how-icon">📍</div><div class="how-title">輸入目的地與天數</div><div class="how-desc">支援全球所有城市與地區，從東京到巴黎，從峇里島到冰島，任何地方都可以。</div></div>
-      <div class="how-card"><div class="how-num">2</div><div class="how-icon">✨</div><div class="how-title">設定旅伴、預算與偏好</div><div class="how-desc">選擇旅伴類型、預算等級和旅遊偏好，AI 依你的條件量身打造最適合的行程。</div></div>
-      <div class="how-card"><div class="how-num">3</div><div class="how-icon">🗓</div><div class="how-title">獲得完整行程並匯出</div><div class="how-desc">含每天詳細安排、住宿推薦比價、景點門票連結、預算估算，一鍵匯出 PDF 備用。</div></div>
+      <div class="how-card">
+        <div class="how-num">1</div>
+        <div class="how-icon-wrap">📍</div>
+        <div class="how-title">選擇目的地與天數</div>
+        <div class="how-desc">支援全球所有城市，從亞洲到歐美，任何地方都可以規劃。調整天數 2–14 天。</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">2</div>
+        <div class="how-icon-wrap">⚙️</div>
+        <div class="how-title">設定旅伴類型與偏好</div>
+        <div class="how-desc">情侶、親子、一個人、朋友團，搭配美食、文化、購物等偏好，AI 精準客製行程。</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">3</div>
+        <div class="how-icon-wrap">✅</div>
+        <div class="how-title">獲得完整行程並出發</div>
+        <div class="how-desc">每天早中晚詳細安排、三級住宿推薦、景點票券連結、一鍵匯出 PDF。</div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="features">
-  <div class="section-inner">
-    <div class="section-eyebrow">功能特色</div>
-    <h2 class="section-title">不只是行程，是完整旅遊助手</h2>
+<!-- FEATURES -->
+<section class="feat-section">
+  <div class="feat-inner">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div class="section-label" style="display:inline-block">功能特色</div>
+      <div class="section-title" style="text-align:center">不只是行程，是完整旅遊助手</div>
+    </div>
     <div class="feat-grid">
-      <div class="feat-card"><div class="feat-icon">🤖</div><div><div class="feat-title">AI 即時生成</div><div class="feat-desc">採用最新 AI 技術，根據旅伴類型、預算和偏好，30秒內生成客製化行程。</div></div></div>
-      <div class="feat-card"><div class="feat-icon">👫</div><div><div class="feat-title">旅伴類型適配</div><div class="feat-desc">一個人、情侶、親子、朋友團、商務，不同旅伴有不同的景點和住宿推薦邏輯。</div></div></div>
-      <div class="feat-card"><div class="feat-icon">💰</div><div><div class="feat-title">預算等級篩選</div><div class="feat-desc">省錢背包客到奢華享受，AI 推薦的餐廳、住宿和活動完全符合你設定的預算範圍。</div></div></div>
-      <div class="feat-card"><div class="feat-icon">🏨</div><div><div class="feat-title">住宿跨平台比價</div><div class="feat-desc">整合 Agoda、Booking.com 即時比價，平價到奢華三種選擇，直接點擊查看最新房價。</div></div></div>
-      <div class="feat-card"><div class="feat-icon">📄</div><div><div class="feat-title">一鍵匯出 PDF</div><div class="feat-desc">行程生成後可匯出完整 PDF，旅途中沒有網路也能查看，方便離線使用。</div></div></div>
-      <div class="feat-card"><div class="feat-icon">🔗</div><div><div class="feat-title">行程分享連結</div><div class="feat-desc">一鍵複製行程連結，傳給同行的朋友或家人，讓大家一起確認行程內容。</div></div></div>
+      <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-title">AI 即時生成</div><div class="feat-desc">最新 AI 技術，根據旅伴類型、預算和偏好，30秒生成客製化行程，每次都不一樣。</div></div>
+      <div class="feat-card"><div class="feat-icon">👫</div><div class="feat-title">旅伴類型適配</div><div class="feat-desc">一個人、情侶、親子、朋友團，不同旅伴有完全不同的景點和住宿推薦。</div></div>
+      <div class="feat-card"><div class="feat-icon">💰</div><div class="feat-title">預算等級篩選</div><div class="feat-desc">省錢背包客到奢華享受，推薦的餐廳、住宿和活動完全符合你的預算。</div></div>
+      <div class="feat-card"><div class="feat-icon">🏨</div><div class="feat-title">住宿跨平台比價</div><div class="feat-desc">整合 Agoda、Booking.com 即時比價，平價到奢華三種選擇，直接點擊訂房。</div></div>
+      <div class="feat-card"><div class="feat-icon">📄</div><div class="feat-title">一鍵匯出 PDF</div><div class="feat-desc">完整行程匯出 PDF，旅途中沒有網路也能查看，方便離線使用。</div></div>
+      <div class="feat-card"><div class="feat-icon">🔗</div><div class="feat-title">行程分享</div><div class="feat-desc">一鍵複製分享連結，傳給同行朋友或家人，讓大家一起確認行程內容。</div></div>
+      <div class="feat-card"><div class="feat-icon">🎟</div><div class="feat-title">景點票券連結</div><div class="feat-desc">整合 KKday、Klook 票券，景點門票和一日遊行程直接在行程內點擊預訂。</div></div>
+      <div class="feat-card"><div class="feat-icon">🔄</div><div class="feat-title">單天重新規劃</div><div class="feat-desc">不滿意某天行程？點擊「重新安排」，AI 單獨重新規劃那一天，不影響其他天。</div></div>
+      <div class="feat-card"><div class="feat-icon">🗺</div><div class="feat-title">私房景點推薦</div><div class="feat-desc">選擇「私房」偏好，AI 推薦當地人才知道的隱藏版餐廳和秘境景點。</div></div>
     </div>
   </div>
 </section>
 
+<!-- PLANNER -->
 <section class="planner-section" id="planner">
   <div class="planner-inner">
-    <div class="planner-header">
-      <div class="section-eyebrow">開始規劃</div>
-      <h2 class="section-title">你的下一趟旅行，從這裡開始</h2>
-      <p class="section-sub">完全免費，無需註冊，立即生成你的專屬旅遊行程</p>
+    <div class="planner-head">
+      <div class="section-label" style="display:inline-block">開始規劃</div>
+      <div class="section-title" style="text-align:center">你的下一趟旅行，從這裡開始</div>
+      <p style="font-size:15px;color:var(--text2);margin-top:8px">完全免費，無需註冊</p>
     </div>
 
     <div class="planner-card">
-      <div class="planner-row">
-        <div class="planner-field grow">
-          <div class="field-label">目的地</div>
-          <div class="dest-wrap">
-            <input class="dest-in" id="di" type="text" placeholder="輸入城市或國家，例：東京、峇里島、巴黎…" autocomplete="off">
-            <button class="xclear" id="xc" onclick="clrDest()">✕</button>
-          </div>
-          <div class="chips">
-            <button class="chip" onclick="setD('日本東京')">🇯🇵 東京</button>
-            <button class="chip" onclick="setD('日本大阪')">🏯 大阪</button>
-            <button class="chip" onclick="setD('日本京都')">⛩️ 京都</button>
-            <button class="chip" onclick="setD('韓國首爾')">🇰🇷 首爾</button>
-            <button class="chip" onclick="setD('泰國曼谷')">🇹🇭 曼谷</button>
-            <button class="chip" onclick="setD('峇里島')">🌴 峇里島</button>
-            <button class="chip" onclick="setD('法國巴黎')">🇫🇷 巴黎</button>
-            <button class="chip" onclick="setD('義大利羅馬')">🇮🇹 羅馬</button>
-            <button class="chip" onclick="setD('英國倫敦')">🇬🇧 倫敦</button>
-            <button class="chip" onclick="setD('新加坡')">🇸🇬 新加坡</button>
-          </div>
-        </div>
-        <div class="planner-field">
-          <div class="field-label">天數</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="stepper">
-              <button class="sbtn" id="bm" onclick="chD(-1)">−</button>
-              <span class="snum" id="dn">5</span>
-              <button class="sbtn" id="bp" onclick="chD(1)">+</button>
+      <div class="planner-top">
+        <div class="planner-top-title">✨ AI 行程規劃器</div>
+        <div class="planner-top-sub">填入資訊，30秒生成完整旅遊行程</div>
+      </div>
+      <div class="planner-body">
+        <div class="planner-row">
+          <div class="pf grow">
+            <div class="pf-label">目的地</div>
+            <div class="pi-wrap">
+              <input class="pi" id="di" type="text" placeholder="輸入城市或國家，例：東京、峇里島、巴黎…" autocomplete="off">
+              <button class="pi-clear" id="xc" onclick="clrDest()">✕</button>
             </div>
-            <span class="snite" id="nt">4夜</span>
+            <div class="pchips">
+              <button class="pchip" onclick="setD('日本東京')">🇯🇵 東京</button>
+              <button class="pchip" onclick="setD('日本大阪')">🏯 大阪</button>
+              <button class="pchip" onclick="setD('日本京都')">⛩️ 京都</button>
+              <button class="pchip" onclick="setD('韓國首爾')">🇰🇷 首爾</button>
+              <button class="pchip" onclick="setD('泰國曼谷')">🇹🇭 曼谷</button>
+              <button class="pchip" onclick="setD('峇里島')">🌴 峇里島</button>
+              <button class="pchip" onclick="setD('法國巴黎')">🇫🇷 巴黎</button>
+              <button class="pchip" onclick="setD('義大利羅馬')">🇮🇹 羅馬</button>
+              <button class="pchip" onclick="setD('英國倫敦')">🇬🇧 倫敦</button>
+              <button class="pchip" onclick="setD('新加坡')">🇸🇬 新加坡</button>
+            </div>
+          </div>
+          <div class="pf">
+            <div class="pf-label">天數</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="pstepper">
+                <button class="pstep" id="bm" onclick="chD(-1)">−</button>
+                <span class="pstep-num" id="dn">5</span>
+                <button class="pstep" id="bp" onclick="chD(1)">+</button>
+              </div>
+              <span class="pstep-night" id="nt">4夜</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="opt-groups">
-        <!-- 旅伴 -->
-        <div class="opt-group">
-          <div class="opt-group-label">旅伴類型（單選）</div>
-          <div class="opt-pills" id="companionPills">
-            <button class="op solo-group on" data-v="一個人獨旅">👤 一個人</button>
-            <button class="op solo-group" data-v="情侶浪漫旅遊">👫 情侶</button>
-            <button class="op solo-group" data-v="親子家庭旅遊">👨‍👩‍👧 親子</button>
-            <button class="op solo-group" data-v="朋友團體旅遊">👥 朋友團</button>
-            <button class="op solo-group" data-v="商務差旅">💼 商務</button>
+        <div class="opt-groups">
+          <div class="opt-g">
+            <div class="opt-g-label">旅伴類型（單選）</div>
+            <div class="opt-pills" id="companionPills">
+              <button class="op on-purple on" data-v="一個人獨旅">👤 一個人</button>
+              <button class="op on-purple" data-v="情侶浪漫旅遊">👫 情侶</button>
+              <button class="op on-purple" data-v="親子家庭旅遊">👨‍👩‍👧 親子</button>
+              <button class="op on-purple" data-v="朋友團體旅遊">👥 朋友團</button>
+              <button class="op on-purple" data-v="商務差旅">💼 商務</button>
+            </div>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">預算等級（單選）</div>
+            <div class="opt-pills" id="budgetPills">
+              <button class="op on-amber" data-v="省錢背包客預算（每人每日 TWD 1500 以下）">💰 省錢背包</button>
+              <button class="op on-amber on" data-v="一般旅遊預算（每人每日 TWD 1500–4000）">💰💰 一般旅遊</button>
+              <button class="op on-amber" data-v="享受型旅遊預算（每人每日 TWD 4000 以上）">💰💰💰 享受旅遊</button>
+            </div>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">旅遊偏好（可複選）</div>
+            <div class="opt-pills">
+              <button class="op on" data-v="美食（葷食餐廳）">🍜 葷食</button>
+              <button class="op" data-v="素食餐廳">🥗 素食</button>
+              <button class="op" data-v="葷素皆有的餐廳">🍱 葷素皆可</button>
+              <button class="op on" data-v="文化景點">⛩ 文化</button>
+              <button class="op" data-v="購物">🛍 購物</button>
+              <button class="op" data-v="自然風景">🌿 自然</button>
+              <button class="op" data-v="夜生活">🌙 夜生活</button>
+              <button class="op" data-v="當地人私房景點">🗺 私房</button>
+            </div>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">季節（可複選）</div>
+            <div class="opt-pills">
+              <button class="op" data-v="春季旅遊（賞花踏青）">🌸 春</button>
+              <button class="op" data-v="夏季旅遊（海灘避暑）">☀️ 夏</button>
+              <button class="op" data-v="秋季旅遊（紅葉楓情）">🍂 秋</button>
+              <button class="op" data-v="冬季旅遊（溫泉雪景）">❄️ 冬</button>
+            </div>
           </div>
         </div>
-        <!-- 預算 -->
-        <div class="opt-group">
-          <div class="opt-group-label">預算等級（單選）</div>
-          <div class="opt-pills" id="budgetPills">
-            <button class="op budget-group" data-v="省錢背包客預算（每人每日 TWD 1500 以下）">💰 省錢背包</button>
-            <button class="op budget-group on" data-v="一般旅遊預算（每人每日 TWD 1500–4000）">💰💰 一般旅遊</button>
-            <button class="op budget-group" data-v="享受型旅遊預算（每人每日 TWD 4000 以上）">💰💰💰 享受旅遊</button>
-          </div>
-        </div>
-        <!-- 偏好 -->
-        <div class="opt-group">
-          <div class="opt-group-label">旅遊偏好（可複選）</div>
-          <div class="opt-pills">
-            <button class="op on" data-v="美食（葷食餐廳）">🍜 葷食</button>
-            <button class="op" data-v="素食餐廳">🥗 素食</button>
-            <button class="op" data-v="葷素皆有的餐廳">🍱 葷素皆可</button>
-            <button class="op on" data-v="文化景點">⛩ 文化</button>
-            <button class="op" data-v="購物">🛍 購物</button>
-            <button class="op" data-v="自然風景">🌿 自然</button>
-            <button class="op" data-v="夜生活">🌙 夜生活</button>
-            <button class="op" data-v="當地人私房景點">🗺 私房</button>
-          </div>
-        </div>
-        <!-- 季節 -->
-        <div class="opt-group">
-          <div class="opt-group-label">季節（可複選）</div>
-          <div class="opt-pills">
-            <button class="op" data-v="春季旅遊（賞花踏青）">🌸 春</button>
-            <button class="op" data-v="夏季旅遊（海灘避暑）">☀️ 夏</button>
-            <button class="op" data-v="秋季旅遊（紅葉楓情）">🍂 秋</button>
-            <button class="op" data-v="冬季旅遊（溫泉雪景）">❄️ 冬</button>
-          </div>
-        </div>
-      </div>
 
-      <button class="gen-btn" id="gb" onclick="go()">✨ 立即生成行程</button>
+        <button class="gen-btn" id="gb" onclick="go()">✨ 立即生成行程</button>
+      </div>
     </div>
 
     <div class="results-wrap">
       <div id="out">
-        <div class="ph"><div class="ph-ico">🗺️</div><div class="ph-txt">選好目的地與偏好，點擊「立即生成行程」</div></div>
+        <div class="ph"><div class="ph-ico">🗺️</div><div class="ph-txt">選好目的地與偏好<br>點擊「立即生成行程」，AI 30秒完成規劃</div></div>
       </div>
-      <div class="aff-note" id="affNote" style="display:none">本站含聯盟行銷連結，點擊訂房/訂票連結完成預訂後，本站可能獲得少量佣金，不影響你的價格。</div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:1rem;display:none" id="affNote">本站含聯盟行銷連結，點擊訂房/訂票連結完成預訂後，本站可能獲得少量佣金，不影響你的價格。</div>
     </div>
   </div>
 </section>
 
-
-
-<section class="section testi-section">
-  <div class="section-inner">
-    <div class="section-eyebrow">使用者回饋</div>
-    <h2 class="section-title">旅人們這樣說</h2>
+<!-- TESTIMONIALS -->
+<section class="testi-section">
+  <div class="testi-inner">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div class="section-label" style="display:inline-block">使用者回饋</div>
+      <div class="section-title" style="text-align:center">旅人們這樣說</div>
+    </div>
     <div class="testi-grid">
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「之前規劃日本行要花好幾天查資料，用 Wandr 30秒就搞定了，行程安排很合理，住宿推薦也很實用！」</div><div class="testi-author"><div class="testi-avatar">😊</div><div><div class="testi-name">小美</div><div class="testi-trip">東京7天 · 2024</div></div></div></div>
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「選了私房景點偏好，AI 推薦了好多我自己絕對找不到的隱藏版餐廳，整趟峇里島之旅超驚喜！」</div><div class="testi-author"><div class="testi-avatar">🌴</div><div><div class="testi-name">阿志</div><div class="testi-trip">峇里島5天 · 2024</div></div></div></div>
-      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「帶全家去首爾，選了親子偏好，行程安排非常適合小朋友，PDF 匯出功能超方便，離線也能看！」</div><div class="testi-author"><div class="testi-avatar">👨‍👩‍👧</div><div><div class="testi-name">王媽媽</div><div class="testi-trip">首爾6天 · 2024</div></div></div></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「之前規劃日本行要花好幾天查資料，用 Wandr 30秒就搞定，行程安排很合理，住宿推薦也很實用！」</div><div class="testi-author"><div class="testi-avatar">😊</div><div><div class="testi-name">陳小美</div><div class="testi-trip">東京 7天 · 2024</div></div></div></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「選了私房景點偏好，AI 推薦了好多我自己絕對找不到的隱藏版餐廳，整趟峇里島之旅超驚喜！」</div><div class="testi-author"><div class="testi-avatar">🌴</div><div><div class="testi-name">林大志</div><div class="testi-trip">峇里島 5天 · 2024</div></div></div></div>
+      <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">「帶全家去首爾，選了親子偏好，行程非常適合小朋友，PDF 匯出功能超方便，離線也能看！」</div><div class="testi-author"><div class="testi-avatar">👨‍👩‍👧</div><div><div class="testi-name">王媽媽</div><div class="testi-trip">首爾 6天 · 2024</div></div></div></div>
     </div>
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo">Wandr</div>
-    <div class="footer-links"><a href="#how">使用方式</a><a href="#features">功能特色</a><a href="#planner">開始規劃</a></div>
-    <div class="footer-copy">© 2025 Wandr · 從台灣出發的 AI 旅遊規劃器</div>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">🌍 Wandr</div>
+        <div class="footer-tagline">從台灣出發的 AI 旅遊規劃器，幫助旅人快速規劃世界各地的完整行程。完全免費使用。</div>
+      </div>
+      <div>
+        <div class="footer-col-title">功能</div>
+        <div class="footer-links-list">
+          <a href="#planner">AI 行程規劃</a>
+          <a href="#destinations">熱門目的地</a>
+          <a href="#how">使用說明</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">合作平台</div>
+        <div class="footer-links-list">
+          <a href="https://www.agoda.com" target="_blank">Agoda 訂房</a>
+          <a href="https://www.booking.com" target="_blank">Booking.com</a>
+          <a href="https://www.kkday.com" target="_blank">KKday 行程</a>
+          <a href="https://www.klook.com" target="_blank">Klook 票券</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">熱門目的地</div>
+        <div class="footer-links-list">
+          <a href="#" onclick="goToPlanner('日本東京')">🇯🇵 日本東京</a>
+          <a href="#" onclick="goToPlanner('韓國首爾')">🇰🇷 韓國首爾</a>
+          <a href="#" onclick="goToPlanner('泰國曼谷')">🇹🇭 泰國曼谷</a>
+          <a href="#" onclick="goToPlanner('法國巴黎')">🇫🇷 法國巴黎</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Wandr · All rights reserved</div>
+      <div class="footer-aff">本站含聯盟行銷連結，點擊訂房/訂票完成預訂後本站可能獲得少量佣金，不影響你的價格。</div>
+    </div>
   </div>
-  <div class="aff-note">本站含聯盟行銷連結，點擊訂房/訂票連結完成預訂後，本站可能獲得少量佣金，不影響你的價格。</div>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -444,354 +643,241 @@ footer{background:var(--green-deep);padding:3rem 2rem}
 <script>
 const WORKER_URL = "https://fragrant-bush-aaff.jocker96963.workers.dev";
 const AFF = {
-  agoda:   d => `https://www.agoda.com/search?city=${encodeURIComponent(d)}&tag=YOUR_AGODA_SITE_ID`,
-  booking: d => `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}&aid=YOUR_BOOKING_AID`,
-  kkday:   d => `https://www.kkday.com/zh-tw/country/search?q=${encodeURIComponent(d)}&cid=YOUR_KKDAY_CID`,
-  klook:   d => `https://www.klook.com/zh-TW/search/?query=${encodeURIComponent(d)}&aid=YOUR_KLOOK_AID`,
+  agoda:   d=>`https://www.agoda.com/search?city=${encodeURIComponent(d)}&tag=YOUR_AGODA_SITE_ID`,
+  booking: d=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}&aid=YOUR_BOOKING_AID`,
+  kkday:   d=>`https://www.kkday.com/zh-tw/country/search?q=${encodeURIComponent(d)}&cid=YOUR_KKDAY_CID`,
+  klook:   d=>`https://www.klook.com/zh-TW/search/?query=${encodeURIComponent(d)}&aid=YOUR_KLOOK_AID`,
 };
 
-// ── State ──
-let days = 5;
-let lastResult = null;
-const MIN = 2, MAX = 14;
+let days=5, heroDays=5, lastResult=null;
+const MIN=2,MAX=14;
+
+// ── Hero search ──
+function hChD(d){
+  heroDays=Math.max(MIN,Math.min(MAX,heroDays+d));
+  document.getElementById('hdn').textContent=heroDays;
+  document.getElementById('hbm').disabled=heroDays<=MIN;
+  document.getElementById('hbp').disabled=heroDays>=MAX;
+}
+hChD(0);
+function setHeroD(v){document.getElementById('heroSearch').value=v;}
+function heroSearch(){
+  const dest=document.getElementById('heroSearch').value.trim();
+  if(!dest) return;
+  document.getElementById('di').value=dest;
+  document.getElementById('xc').classList.add('on');
+  days=heroDays;
+  document.getElementById('dn').textContent=days;
+  document.getElementById('nt').textContent=(days-1)+'夜';
+  document.getElementById('planner').scrollIntoView({behavior:'smooth'});
+  setTimeout(go,600);
+}
+document.getElementById('heroSearch').addEventListener('keydown',e=>{if(e.key==='Enter')heroSearch();});
+
+// ── Destination cards ──
+function goToPlanner(dest){
+  document.getElementById('di').value=dest;
+  document.getElementById('xc').classList.add('on');
+  document.getElementById('planner').scrollIntoView({behavior:'smooth'});
+}
 
 // ── Day stepper ──
-function chD(d) {
-  days = Math.max(MIN, Math.min(MAX, days + d));
-  document.getElementById('dn').textContent = days;
-  document.getElementById('nt').textContent = (days-1) + '夜';
-  document.getElementById('bm').disabled = days <= MIN;
-  document.getElementById('bp').disabled = days >= MAX;
+function chD(d){
+  days=Math.max(MIN,Math.min(MAX,days+d));
+  document.getElementById('dn').textContent=days;
+  document.getElementById('nt').textContent=(days-1)+'夜';
+  document.getElementById('bm').disabled=days<=MIN;
+  document.getElementById('bp').disabled=days>=MAX;
 }
 chD(0);
 
 // ── Dest input ──
-const di = document.getElementById('di');
-const xc = document.getElementById('xc');
-di.addEventListener('input', () => xc.classList.toggle('on', di.value.length > 0));
-di.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
-function clrDest() { di.value = ''; xc.classList.remove('on'); di.focus(); }
-function setD(v) { di.value = v; xc.classList.add('on'); document.getElementById('planner').scrollIntoView({behavior:'smooth'}); }
+const di=document.getElementById('di');
+const xc=document.getElementById('xc');
+di.addEventListener('input',()=>xc.classList.toggle('on',di.value.length>0));
+di.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+function clrDest(){di.value='';xc.classList.remove('on');di.focus();}
+function setD(v){di.value=v;xc.classList.add('on');}
 
-// ── Single-select groups (旅伴、預算) ──
-['companionPills','budgetPills'].forEach(id => {
-  document.getElementById(id).addEventListener('click', e => {
-    const p = e.target.closest('.op');
-    if (!p) return;
-    document.querySelectorAll('#'+id+' .op').forEach(x => x.classList.remove('on'));
+// ── Single select groups ──
+['companionPills','budgetPills'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{
+    const p=e.target.closest('.op');
+    if(!p) return;
+    document.querySelectorAll('#'+id+' .op').forEach(x=>x.classList.remove('on'));
     p.classList.add('on');
   });
 });
 
-// ── Multi-select (偏好、季節) ──
-document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op').forEach(p => {
-  p.addEventListener('click', () => p.classList.toggle('on'));
+// ── Multi select ──
+document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op').forEach(p=>{
+  p.addEventListener('click',()=>p.classList.toggle('on'));
 });
 
-function getVal(selector) {
-  return [...document.querySelectorAll(selector+'.on')].map(p => p.dataset.v).join('、');
-}
+function getVal(sel){return[...document.querySelectorAll(sel+'.on')].map(p=>p.dataset.v).join('、');}
 
 // ── Affiliate links ──
-function affLinks(type, dest, name) {
-  const q = encodeURIComponent(name+' '+dest);
-  if (type==='hotel') return [
-    {label:'🏨 Agoda',cls:'hotel',href:AFF.agoda(dest)},
-    {label:'🏨 Booking',cls:'hotel',href:AFF.booking(dest)},
-  ];
-  if (type==='ticket') return [
-    {label:'🎟 KKday',cls:'ticket',href:`https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID`},
-    {label:'🎟 Klook',cls:'ticket',href:`https://www.klook.com/zh-TW/search/?query=${q}&aid=YOUR_KLOOK_AID`},
-  ];
-  if (type==='tour') return [
-    {label:'🗺 KKday',cls:'tour',href:`https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID`},
-  ];
+function affLinks(type,dest,name){
+  const q=encodeURIComponent(name+' '+dest);
+  if(type==='hotel') return [{label:'🏨 Agoda',cls:'hotel',href:AFF.agoda(dest)},{label:'🏨 Booking',cls:'hotel',href:AFF.booking(dest)}];
+  if(type==='ticket') return [{label:'🎟 KKday',cls:'ticket',href:`https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID`},{label:'🎟 Klook',cls:'ticket',href:`https://www.klook.com/zh-TW/search/?query=${q}&aid=YOUR_KLOOK_AID`}];
+  if(type==='tour') return [{label:'🗺 KKday',cls:'tour',href:`https://www.kkday.com/zh-tw/country/search?q=${q}&cid=YOUR_KKDAY_CID`}];
   return [];
 }
 
-
 // ── Toast ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
 // ── Share ──
-function shareItinerary() {
-  if (!lastResult) return;
-  const data = encodeURIComponent(JSON.stringify(lastResult));
-  const url = window.location.origin + window.location.pathname + '?share=' + data;
-  if (url.length > 8000) {
-    // fallback: copy summary
-    navigator.clipboard.writeText(`✈️ ${lastResult.dest} ${lastResult.days}天行程\n預估費用：TWD ${Number(lastResult.budget_twd).toLocaleString()}\n${lastResult.highlight}\n\n用 Wandr 免費規劃你的旅程：${window.location.href}`);
-    showToast('✅ 行程摘要已複製到剪貼簿！');
-  } else {
-    navigator.clipboard.writeText(url);
-    showToast('✅ 分享連結已複製！');
-  }
+function shareItinerary(){
+  if(!lastResult) return;
+  const data=encodeURIComponent(JSON.stringify(lastResult));
+  const url=window.location.origin+window.location.pathname+'?share='+data;
+  navigator.clipboard.writeText(url.length>8000
+    ?`✈️ ${lastResult.dest} ${lastResult.days}天行程\nTWD ${Number(lastResult.budget_twd).toLocaleString()}\n${lastResult.highlight}\n\nWandr 免費規劃：${window.location.href}`
+    :url);
+  showToast('✅ 分享連結已複製！');
 }
 
 // ── PDF Export ──
-async function exportPDF() {
-  if (!lastResult) return;
-  const d = lastResult;
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
-    // Load font support for Chinese - use base64 or fallback to English
+async function exportPDF(){
+  if(!lastResult) return;
+  const d=lastResult;
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
     doc.setFont('helvetica');
-
-    let y = 20;
-    const lh = 7;
-    const margin = 15;
-    const pageW = 210;
-    const maxW = pageW - margin * 2;
-
-    const addLine = (text, size=11, bold=false, color=[30,30,30]) => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFontSize(size);
-      doc.setTextColor(...color);
-      const lines = doc.splitTextToSize(text, maxW);
-      lines.forEach(line => {
-        if (y > 270) { doc.addPage(); y = 20; }
-        doc.text(line, margin, y);
-        y += lh;
-      });
+    let y=20;const lh=7,margin=15,maxW=180;
+    const addLine=(text,size=11,color=[30,30,30])=>{
+      if(y>270){doc.addPage();y=20;}
+      doc.setFontSize(size);doc.setTextColor(...color);
+      doc.splitTextToSize(text,maxW).forEach(line=>{if(y>270){doc.addPage();y=20;}doc.text(line,margin,y);y+=lh;});
     };
-
-    const addSpace = (n=3) => { y += n; };
-
-    // Header
-    doc.setFillColor(10, 46, 26);
-    doc.rect(0, 0, 210, 35, 'F');
-    doc.setFontSize(22);
-    doc.setTextColor(255,255,255);
-    doc.text('Wandr', margin, 18);
-    doc.setFontSize(12);
-    doc.setTextColor(125, 212, 168);
-    doc.text('AI Travel Planner', margin, 27);
-    y = 45;
-
-    // Title
-    doc.setFontSize(18);
-    doc.setTextColor(10,46,26);
-    doc.text(`${d.dest} - ${d.days} Days Itinerary`, margin, y);
-    y += 10;
-
-    // Summary
-    doc.setFontSize(10);
-    doc.setTextColor(100,100,100);
-    doc.text(`Budget: TWD ${Number(d.budget_twd).toLocaleString()}  |  ${d.highlight}`, margin, y);
-    y += 4;
-    doc.setDrawColor(200,200,200);
-    doc.line(margin, y, 210-margin, y);
-    y += 8;
-
-    // Tips
-    if (d.tips?.length) {
-      doc.setFontSize(10);
-      doc.setTextColor(45,158,95);
-      doc.text('Travel Tips:', margin, y); y += 6;
-      d.tips.forEach(t => { addLine('  * ' + t, 9, false, [80,80,80]); });
-      addSpace(4);
-    }
-
-    // Itinerary
-    (d.itinerary||[]).forEach(day => {
-      if (y > 250) { doc.addPage(); y = 20; }
-      // Day header
-      doc.setFillColor(45,158,95);
-      doc.rect(margin, y-4, maxW, 9, 'F');
-      doc.setFontSize(11);
-      doc.setTextColor(255,255,255);
-      doc.text(`Day ${day.day}  ${day.title}  (${day.city})`, margin+3, y+2);
-      y += 10;
-
-      [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(([k,lbl]) => {
-        const acts = day[k];
-        if (!acts?.length) return;
-        doc.setFontSize(9);
-        doc.setTextColor(100,100,100);
-        addLine(`[${lbl}]`, 9, false, [150,150,150]);
-        acts.forEach(a => {
-          addLine(`  ${a.name}`, 10, true, [30,30,30]);
-          addLine(`  ${a.desc}`, 9, false, [100,100,100]);
-          if (a.cost) addLine(`  Cost: ${a.cost}`, 9, false, [45,158,95]);
-          addSpace(1);
-        });
-      });
-      addSpace(4);
+    doc.setFillColor(0,101,72);doc.rect(0,0,210,32,'F');
+    doc.setFontSize(20);doc.setTextColor(255,255,255);doc.text('Wandr',margin,16);
+    doc.setFontSize(11);doc.setTextColor(180,240,210);doc.text('AI Travel Planner',margin,25);
+    y=42;
+    doc.setFontSize(16);doc.setTextColor(0,70,50);doc.text(`${d.dest} - ${d.days} Days Itinerary`,margin,y);y+=10;
+    doc.setFontSize(10);doc.setTextColor(100,100,100);doc.text(`Budget: TWD ${Number(d.budget_twd).toLocaleString()}  |  ${d.highlight}`,margin,y);y+=5;
+    doc.setDrawColor(200,200,200);doc.line(margin,y,195,y);y+=8;
+    if(d.tips?.length){doc.setTextColor(0,101,72);addLine('Travel Tips:',10,[0,101,72]);d.tips.forEach(t=>addLine('  * '+t,9,[80,80,80]));y+=4;}
+    (d.itinerary||[]).forEach(day=>{
+      if(y>250){doc.addPage();y=20;}
+      doc.setFillColor(0,133,90);doc.rect(margin,y-4,maxW,9,'F');
+      doc.setFontSize(11);doc.setTextColor(255,255,255);
+      doc.text(`Day ${day.day}  ${day.title}  (${day.city})`,margin+3,y+2);y+=10;
+      [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].forEach(([k,lbl])=>{
+        const acts=day[k];if(!acts?.length) return;
+        addLine(`[${lbl}]`,9,[150,150,150]);
+        acts.forEach(a=>{addLine(`  ${a.name}`,10,[30,30,30]);addLine(`  ${a.desc}`,9,[100,100,100]);if(a.cost)addLine(`  Cost: ${a.cost}`,9,[0,101,72]);y+=1;});
+      });y+=4;
     });
-
-    // Hotels
-    if (d.hotels?.length) {
-      if (y > 230) { doc.addPage(); y = 20; }
-      doc.setFontSize(13);
-      doc.setTextColor(10,46,26);
-      doc.text('Accommodation Recommendations', margin, y); y += 8;
-      d.hotels.forEach(h => {
-        addLine(`[${h.tier}] ${h.name}`, 10, true, [30,30,30]);
-        addLine(`  ${h.area} | ${h.price_twd}/night`, 9, false, [100,100,100]);
-        addSpace(2);
-      });
+    if(d.hotels?.length){
+      if(y>230){doc.addPage();y=20;}
+      doc.setFontSize(13);doc.setTextColor(0,70,50);doc.text('Accommodation',margin,y);y+=8;
+      d.hotels.forEach(h=>{addLine(`[${h.tier}] ${h.name}`,10,[30,30,30]);addLine(`  ${h.area} | ${h.price_twd}/night`,9,[100,100,100]);y+=2;});
     }
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(180,180,180);
-      doc.text(`Generated by Wandr AI Travel Planner | Page ${i}/${pageCount}`, margin, 290);
-    }
-
+    const pages=doc.internal.getNumberOfPages();
+    for(let i=1;i<=pages;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(180,180,180);doc.text(`Wandr AI Travel Planner | Page ${i}/${pages}`,margin,290);}
     doc.save(`Wandr_${d.dest}_${d.days}days.pdf`);
     showToast('📄 PDF 已下載！');
-  } catch(e) {
-    showToast('⚠️ PDF 匯出失敗，請重試');
-  }
+  }catch(e){showToast('⚠️ PDF 匯出失敗');}
 }
 
 // ── Regen single day ──
-async function regenDay(dayNum) {
-  if (!lastResult) return;
-  const btn = document.getElementById('regen_'+dayNum);
-  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
-
-  const d = lastResult;
-  const companion = getVal('#companionPills');
-  const budget = getVal('#budgetPills');
-  const prefs = [...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、');
-
-  const prompt = `你是旅遊顧問。請重新規劃「${d.dest}」第${dayNum}天的行程，旅伴：${companion}，預算：${budget}，偏好：${prefs}。
-
-回傳純 JSON（禁止 markdown，禁止說明）：
-{"day":${dayNum},"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}
-
+async function regenDay(dayNum){
+  if(!lastResult) return;
+  const btn=document.getElementById('regen_'+dayNum);
+  if(btn){btn.textContent='⏳';btn.disabled=true;}
+  const d=lastResult;
+  const companion=getVal('#companionPills');
+  const budget=getVal('#budgetPills');
+  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、');
+  const prompt=`重新規劃「${d.dest}」第${dayNum}天行程。旅伴：${companion}，預算：${budget}，偏好：${prefs}。
+回傳純JSON（禁止markdown）：{"day":${dayNum},"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}
 繁體中文，每時段1–2活動。`;
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({messages:[{role:'user',content:prompt}]})
-    });
-    const data = await res.json();
-    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const newDay = JSON.parse(raw.replace(/```json|```/gi,'').trim());
-
-    // Update in lastResult
-    const idx = lastResult.itinerary.findIndex(x=>x.day===dayNum);
-    if (idx>=0) lastResult.itinerary[idx] = newDay;
-
-    // Re-render just that day
-    const dayEl = document.getElementById('db'+dayNum);
-    const dhEl = document.getElementById('dh'+dayNum);
-    if (dhEl) dhEl.querySelector('.dtitle').textContent = (newDay.emoji||'') + ' ' + newDay.title;
-    if (dayEl) dayEl.innerHTML = renderDayBody(newDay, d.dest);
-    showToast(`✅ 第 ${dayNum} 天行程已重新規劃！`);
-  } catch(e) {
-    showToast('⚠️ 重新規劃失敗，請重試');
-  } finally {
-    if (btn) { btn.textContent = '🔄 重新安排'; btn.disabled = false; }
-  }
+  try{
+    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const newDay=JSON.parse(raw.replace(/```json|```/gi,'').trim());
+    const idx=lastResult.itinerary.findIndex(x=>x.day===dayNum);
+    if(idx>=0) lastResult.itinerary[idx]=newDay;
+    const dhEl=document.getElementById('dh'+dayNum);
+    if(dhEl) dhEl.querySelector('.dtitle').textContent=(newDay.emoji||'')+' '+newDay.title;
+    const dayEl=document.getElementById('db'+dayNum);
+    if(dayEl) dayEl.innerHTML=renderDayBody(newDay,d.dest);
+    showToast(`✅ 第 ${dayNum} 天已重新規劃！`);
+  }catch(e){showToast('⚠️ 重新規劃失敗');}
+  finally{if(btn){btn.textContent='🔄 重新安排';btn.disabled=false;}}
 }
 
 // ── Render day body ──
-function renderDayBody(day, dest) {
-  let h = '';
-  [['morning','早上'],['afternoon','下午'],['evening','晚上']].forEach(([k,lbl]) => {
-    const acts = day[k];
-    if (!acts?.length) return;
-    h += `<div class="slot"><div class="slbl">${lbl}</div>`;
-    acts.forEach(a => {
-      const links = affLinks(a.aff_type, dest, a.name);
-      h += `<div class="arow">
-        <span class="aico">${a.icon||'📍'}</span>
-        <div class="abody">
-          <div class="aname">${a.name}</div>
-          <div class="adesc">${a.desc}</div>
-          ${a.cost?`<span class="atag">${a.cost}</span>`:''}
-          ${links.length?`<div class="aff-inline">${links.map(l=>`<a class="aff-sm ${l.cls}" href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>`:''}
-        </div>
-      </div>`;
+function renderDayBody(day,dest){
+  let h='';
+  [['morning','早上'],['afternoon','下午'],['evening','晚上']].forEach(([k,lbl])=>{
+    const acts=day[k];if(!acts?.length) return;
+    h+=`<div class="slot"><div class="slbl">${lbl}</div>`;
+    acts.forEach(a=>{
+      const links=affLinks(a.aff_type,dest,a.name);
+      h+=`<div class="arow"><span class="aico">${a.icon||'📍'}</span><div class="abody"><div class="aname">${a.name}</div><div class="adesc">${a.desc}</div>${a.cost?`<span class="atag">${a.cost}</span>`:''}${links.length?`<div class="aff-inline">${links.map(l=>`<a class="aff-sm ${l.cls}" href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>`:''}</div></div>`;
     });
-    h += `</div>`;
+    h+=`</div>`;
   });
   return h;
 }
 
 // ── Main generate ──
-async function go() {
-  const dest = di.value.trim();
-  if (!dest) {
-    di.focus(); di.style.borderColor='rgba(232,103,58,0.7)';
-    setTimeout(()=>di.style.borderColor='',1200); return;
-  }
-  const companion = getVal('#companionPills');
-  const budget = getVal('#budgetPills');
-  const prefs = [...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、') || '觀光';
-
-  const out = document.getElementById('out');
-  const btn = document.getElementById('gb');
-  btn.disabled=true; btn.innerHTML='⏳ AI 規劃中…';
+async function go(){
+  const dest=di.value.trim();
+  if(!dest){di.focus();di.style.borderColor='#ff6b35';setTimeout(()=>di.style.borderColor='',1200);return;}
+  const companion=getVal('#companionPills');
+  const budget=getVal('#budgetPills');
+  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、')||'觀光';
+  const out=document.getElementById('out');
+  const btn=document.getElementById('gb');
+  btn.disabled=true;btn.innerHTML='⏳ AI 規劃中…';
   document.getElementById('affNote').style.display='none';
   out.innerHTML=`<div class="spin-wrap"><div class="spin"></div><div class="spin-txt">AI 正在為你規劃 ${dest} ${days} 天行程…</div></div>`;
 
-  const prompt = `你是專業旅遊顧問，服務對象是從台灣桃園出發的旅客。
-規劃「${dest}」${days}天（${days-1}夜）旅遊行程。
-旅伴：${companion}。預算：${budget}。偏好：${prefs}。
+  const prompt=`你是專業旅遊顧問，服務對象是從台灣桃園出發的旅客。
+規劃「${dest}」${days}天（${days-1}夜）旅遊行程。旅伴：${companion}。預算：${budget}。偏好：${prefs}。
+回傳純JSON（禁止markdown，禁止說明）：
+{"dest":"${dest}","days":${days},"budget_twd":預估台幣整數,"highlight":"15字內亮點","tips":["技巧1","技巧2","技巧3"],"hotels":[{"tier":"平價","name":"真實飯店名","area":"區域","price_twd":"TWD範圍/晚"},{"tier":"中高級","name":"...","area":"...","price_twd":"..."},{"tier":"奢華","name":"...","area":"...","price_twd":"..."}],"itinerary":[{"day":1,"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}]}
+Day1=抵達日，Day${days}=返程日。每時段1–2活動。繁體中文。`;
 
-回傳純 JSON（禁止 markdown code block，禁止說明文字）：
-{
-  "dest":"${dest}","days":${days},
-  "budget_twd":預估總費用台幣整數,
-  "highlight":"15字內亮點",
-  "tips":["技巧1","技巧2","技巧3"],
-  "hotels":[
-    {"tier":"平價","name":"真實飯店名","area":"區域","price_twd":"TWD範圍/晚"},
-    {"tier":"中高級","name":"...","area":"...","price_twd":"..."},
-    {"tier":"奢華","name":"...","area":"...","price_twd":"..."}
-  ],
-  "itinerary":[
-    {"day":1,"title":"標題","city":"城市","emoji":"emoji",
-     "morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],
-     "afternoon":[...],"evening":[...]}
-  ]
-}
-Day1=抵達日，Day${days}=返程日。每時段1–2活動。描述25字內。繁體中文。`;
-
-  try {
-    const res = await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
-    if (!res.ok) throw new Error(`錯誤 ${res.status}`);
-    const data = await res.json();
-    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const json = JSON.parse(raw.replace(/```json|```/gi,'').trim());
-    lastResult = json;
+  try{
+    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}]})});
+    if(!res.ok) throw new Error(`錯誤 ${res.status}`);
+    const data=await res.json();
+    const raw=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const json=JSON.parse(raw.replace(/```json|```/gi,'').trim());
+    lastResult=json;
     render(json);
     document.getElementById('affNote').style.display='block';
-  } catch(e) {
+  }catch(e){
     out.innerHTML=`<div class="errbox">⚠️ ${e.message||'發生錯誤，請重試'}</div>`;
-  } finally {
-    btn.disabled=false; btn.innerHTML='✨ 立即生成行程';
+  }finally{
+    btn.disabled=false;btn.innerHTML='✨ 立即生成行程';
   }
 }
 
 // ── Render ──
-function render(d) {
-  const out = document.getElementById('out');
-  const bud = d.budget_twd?'TWD '+Number(d.budget_twd).toLocaleString():'—';
-  const companion = getVal('#companionPills');
-  const budget = getVal('#budgetPills');
-
-  let h = `
+function render(d){
+  const out=document.getElementById('out');
+  const bud=d.budget_twd?'TWD '+Number(d.budget_twd).toLocaleString():'—';
+  const companion=getVal('#companionPills').split('（')[0];
+  const budget=getVal('#budgetPills').split('（')[0];
+  let h=`
   <div class="sumbar">
     <div class="si"><span class="sl">目的地</span><span class="sv">📍 ${d.dest}</span></div>
     <div class="si"><span class="sl">天數</span><span class="sv">${d.days}天 ${d.days-1}夜</span></div>
-    <div class="si"><span class="sl">旅伴</span><span class="sv">${companion.split('（')[0]}</span></div>
-    <div class="si"><span class="sl">預算</span><span class="sv">${budget.split('（')[0]}</span></div>
+    <div class="si"><span class="sl">旅伴</span><span class="sv">${companion}</span></div>
+    <div class="si"><span class="sl">預算</span><span class="sv">${budget}</span></div>
     <div class="si"><span class="sl">預估費用（一人）</span><span class="sv">${bud}</span></div>
     <div class="si shi"><span class="sl">亮點</span><span class="sv">${d.highlight||''}</span></div>
   </div>
@@ -799,20 +885,9 @@ function render(d) {
     <button class="act-btn pdf" onclick="exportPDF()">📄 匯出 PDF</button>
     <button class="act-btn share" onclick="shareItinerary()">🔗 複製分享連結</button>
   </div>`;
-
-  if (d.tips?.length) h+=`<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
-
-  h+=`<div class="aff-banner">
-    <div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div>
-    <div class="aff-links">
-      <a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a>
-      <a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a>
-      <a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a>
-      <a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a>
-    </div>
-  </div>`;
-
-  if (d.hotels?.length) {
+  if(d.tips?.length) h+=`<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
+  h+=`<div class="aff-banner"><div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div><div class="aff-links"><a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a><a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a><a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a><a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a></div></div>`;
+  if(d.hotels?.length){
     h+=`<div class="hotel-section"><div class="hotel-sec-title">🏨 住宿推薦</div><div class="hotel-cards">`;
     d.hotels.forEach(hotel=>{
       const q=encodeURIComponent(hotel.name+' '+d.dest);
@@ -820,42 +895,25 @@ function render(d) {
     });
     h+=`</div></div>`;
   }
-
   h+=`<div class="daylist">`;
   (d.itinerary||[]).forEach(day=>{
-    h+=`<div class="dc">
-      <div class="dh" id="dh${day.day}">
-        <div class="dbadge">D${day.day}</div>
-        <div class="dinfo">
-          <div class="dtitle">${day.emoji||''} ${day.title}</div>
-          <span class="dcity">${day.city}</span>
-        </div>
-        <button class="dregen" id="regen_${day.day}" onclick="regenDay(${day.day})">🔄 重新安排</button>
-      </div>
-      <div class="dbody" id="db${day.day}">${renderDayBody(day, d.dest)}</div>
-    </div>`;
+    h+=`<div class="dc"><div class="dh" id="dh${day.day}"><div class="dbadge">D${day.day}</div><div class="dinfo"><div class="dtitle">${day.emoji||''} ${day.title}</div><span class="dcity">${day.city}</span></div><button class="dregen" id="regen_${day.day}" onclick="regenDay(${day.day})">🔄 重新安排</button></div><div class="dbody" id="db${day.day}">${renderDayBody(day,d.dest)}</div></div>`;
   });
   h+=`</div>`;
-  out.innerHTML = h;
+  out.innerHTML=h;
 }
 
-// ── Load shared itinerary from URL ──
+// ── Load shared URL ──
 (function(){
-  const params = new URLSearchParams(window.location.search);
-  const share = params.get('share');
-  if (share) {
-    try {
-      const data = JSON.parse(decodeURIComponent(share));
-      lastResult = data;
-      // Pre-fill destination
-      document.getElementById('di').value = data.dest || '';
+  const share=new URLSearchParams(window.location.search).get('share');
+  if(share){
+    try{
+      const data=JSON.parse(decodeURIComponent(share));
+      lastResult=data;
+      document.getElementById('di').value=data.dest||'';
       document.getElementById('xc').classList.add('on');
-      setTimeout(() => {
-        render(data);
-        document.getElementById('affNote').style.display='block';
-        document.getElementById('planner').scrollIntoView({behavior:'smooth'});
-      }, 500);
-    } catch(e) {}
+      setTimeout(()=>{render(data);document.getElementById('affNote').style.display='block';document.getElementById('planner').scrollIntoView({behavior:'smooth'});},500);
+    }catch(e){}
   }
 })();
 </script>
