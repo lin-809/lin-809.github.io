@@ -254,6 +254,7 @@ footer{background:var(--green-deep);padding:3rem 2rem}
       <a href="#how">使用方式</a>
       <a href="#features">功能特色</a>
       <a href="#planner">開始規劃</a>
+      <a href="#currency">費用換算</a>
       <a class="nav-cta" href="#planner">免費使用</a>
     </div>
   </div>
@@ -416,6 +417,55 @@ footer{background:var(--green-deep);padding:3rem 2rem}
   </div>
 </section>
 
+
+<section class="currency-section" id="currency">
+  <div class="currency-inner">
+    <div class="planner-header" style="margin-bottom:2rem">
+      <div class="section-eyebrow" style="color:#7dd4a8">費用換算</div>
+      <h2 class="section-title" style="color:#fff">即時幣值換算器</h2>
+      <p class="section-sub" style="color:rgba(255,255,255,0.5);margin:0 auto">出發前快速換算旅遊費用，支援全球 15 種貨幣即時匯率</p>
+    </div>
+    <div class="currency-card">
+      <div class="currency-grid">
+        <div class="currency-input-group">
+          <div class="currency-label">金額</div>
+          <input class="currency-input" id="currAmount" type="number" placeholder="輸入金額" oninput="doConvert()" value="10000">
+          <div class="currency-quick-btns">
+            <button class="cq-btn" onclick="setQuickAmount(1000)">1,000</button>
+            <button class="cq-btn" onclick="setQuickAmount(5000)">5,000</button>
+            <button class="cq-btn" onclick="setQuickAmount(10000)">10,000</button>
+            <button class="cq-btn" onclick="setQuickAmount(50000)">50,000</button>
+            <button class="cq-btn" onclick="setQuickAmount(100000)">100,000</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div class="currency-input-group" style="flex:1">
+            <div class="currency-label">從</div>
+            <div class="currency-select-wrap">
+              <select class="currency-select" id="currFromSel" onchange="doConvert()"></select>
+            </div>
+          </div>
+          <div class="currency-swap-btn">
+            <button class="swap-btn" onclick="swapCurrency()" title="互換貨幣">⇄</button>
+          </div>
+          <div class="currency-input-group" style="flex:1">
+            <div class="currency-label">換成</div>
+            <div class="currency-select-wrap">
+              <select class="currency-select" id="currToSel" onchange="doConvert()"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="currency-result-box">
+        <div class="currency-result-label">換算結果</div>
+        <div class="currency-result-amount" id="currResultAmount"><span class="currency-loading">載入匯率中…</span></div>
+        <div class="currency-result-sub" id="currResultSub"></div>
+      </div>
+      <div class="currency-rate-note" id="currRateNote"></div>
+    </div>
+  </div>
+</section>
+
 <section class="section testi-section">
   <div class="section-inner">
     <div class="section-eyebrow">使用者回饋</div>
@@ -508,7 +558,7 @@ function affLinks(type, dest, name) {
 }
 
 
-// ── Currency Converter ──
+// ── Currency Converter (Standalone) ──
 const CURRENCIES = [
   {code:'JPY', symbol:'¥', name:'日圓 JPY', flag:'🇯🇵'},
   {code:'KRW', symbol:'₩', name:'韓元 KRW', flag:'🇰🇷'},
@@ -884,7 +934,6 @@ function render(d) {
     <div class="si"><span class="sl">預估費用（一人）</span><span class="sv">${bud}</span></div>
     <div class="si shi"><span class="sl">亮點</span><span class="sv">${d.highlight||''}</span></div>
   </div>
-  ${d.budget_twd ? buildCurrencyBar(d.budget_twd) : ''}
   <div class="action-bar">
     <button class="act-btn pdf" onclick="exportPDF()">📄 匯出 PDF</button>
     <button class="act-btn share" onclick="shareItinerary()">🔗 複製分享連結</button>
@@ -927,10 +976,6 @@ function render(d) {
   });
   h+=`</div>`;
   out.innerHTML = h;
-  // Init currency converter after render
-  if (d.budget_twd) {
-    setTimeout(() => initCurrencyBar(d.budget_twd), 100);
-  }
 }
 
 // ── Load shared itinerary from URL ──
@@ -952,6 +997,12 @@ function render(d) {
     } catch(e) {}
   }
 })();
+// ── Init standalone currency converter ──
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initStandaloneCurrency);
+} else {
+  initStandaloneCurrency();
+}
 </script>
 </body>
 </html>
