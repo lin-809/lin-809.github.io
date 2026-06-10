@@ -254,7 +254,6 @@ footer{background:var(--green-deep);padding:3rem 2rem}
       <a href="#how">使用方式</a>
       <a href="#features">功能特色</a>
       <a href="#planner">開始規劃</a>
-      <a href="#currency">費用換算</a>
       <a class="nav-cta" href="#planner">免費使用</a>
     </div>
   </div>
@@ -418,53 +417,6 @@ footer{background:var(--green-deep);padding:3rem 2rem}
 </section>
 
 
-<section class="currency-section" id="currency">
-  <div class="currency-inner">
-    <div class="planner-header" style="margin-bottom:2rem">
-      <div class="section-eyebrow" style="color:#7dd4a8">費用換算</div>
-      <h2 class="section-title" style="color:#fff">即時幣值換算器</h2>
-      <p class="section-sub" style="color:rgba(255,255,255,0.5);margin:0 auto">出發前快速換算旅遊費用，支援全球 15 種貨幣即時匯率</p>
-    </div>
-    <div class="currency-card">
-      <div class="currency-grid">
-        <div class="currency-input-group">
-          <div class="currency-label">金額</div>
-          <input class="currency-input" id="currAmount" type="number" placeholder="輸入金額" oninput="doConvert()" value="10000">
-          <div class="currency-quick-btns">
-            <button class="cq-btn" onclick="setQuickAmount(1000)">1,000</button>
-            <button class="cq-btn" onclick="setQuickAmount(5000)">5,000</button>
-            <button class="cq-btn" onclick="setQuickAmount(10000)">10,000</button>
-            <button class="cq-btn" onclick="setQuickAmount(50000)">50,000</button>
-            <button class="cq-btn" onclick="setQuickAmount(100000)">100,000</button>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:flex-end">
-          <div class="currency-input-group" style="flex:1">
-            <div class="currency-label">從</div>
-            <div class="currency-select-wrap">
-              <select class="currency-select" id="currFromSel" onchange="doConvert()"></select>
-            </div>
-          </div>
-          <div class="currency-swap-btn">
-            <button class="swap-btn" onclick="swapCurrency()" title="互換貨幣">⇄</button>
-          </div>
-          <div class="currency-input-group" style="flex:1">
-            <div class="currency-label">換成</div>
-            <div class="currency-select-wrap">
-              <select class="currency-select" id="currToSel" onchange="doConvert()"></select>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="currency-result-box">
-        <div class="currency-result-label">換算結果</div>
-        <div class="currency-result-amount" id="currResultAmount"><span class="currency-loading">載入匯率中…</span></div>
-        <div class="currency-result-sub" id="currResultSub"></div>
-      </div>
-      <div class="currency-rate-note" id="currRateNote"></div>
-    </div>
-  </div>
-</section>
 
 <section class="section testi-section">
   <div class="section-inner">
@@ -557,97 +509,6 @@ function affLinks(type, dest, name) {
   return [];
 }
 
-
-// ── Currency Converter (Standalone) ──
-const CURRENCIES = [
-  {code:'JPY', symbol:'¥', name:'日圓 JPY', flag:'🇯🇵'},
-  {code:'KRW', symbol:'₩', name:'韓元 KRW', flag:'🇰🇷'},
-  {code:'THB', symbol:'฿', name:'泰銖 THB', flag:'🇹🇭'},
-  {code:'SGD', symbol:'S$', name:'新加坡元 SGD', flag:'🇸🇬'},
-  {code:'HKD', symbol:'HK$', name:'港幣 HKD', flag:'🇭🇰'},
-  {code:'USD', symbol:'$', name:'美元 USD', flag:'🇺🇸'},
-  {code:'EUR', symbol:'€', name:'歐元 EUR', flag:'🇪🇺'},
-  {code:'GBP', symbol:'£', name:'英鎊 GBP', flag:'🇬🇧'},
-  {code:'AUD', symbol:'A$', name:'澳幣 AUD', flag:'🇦🇺'},
-  {code:'MYR', symbol:'RM', name:'馬幣 MYR', flag:'🇲🇾'},
-  {code:'IDR', symbol:'Rp', name:'印尼盾 IDR', flag:'🇮🇩'},
-  {code:'VND', symbol:'₫', name:'越南盾 VND', flag:'🇻🇳'},
-  {code:'MXN', symbol:'$', name:'墨西哥披索 MXN', flag:'🇲🇽'},
-  {code:'CHF', symbol:'Fr', name:'瑞士法郎 CHF', flag:'🇨🇭'},
-];
-
-let ratesCache = {};
-let ratesFetchedAt = 0;
-
-async function fetchRates() {
-  // Use exchangerate-api free tier (no key needed for basic)
-  const now = Date.now();
-  if (Object.keys(ratesCache).length && now - ratesFetchedAt < 3600000) return ratesCache;
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/TWD');
-    const data = await res.json();
-    if (data.result === 'success') {
-      ratesCache = data.rates;
-      ratesFetchedAt = now;
-    }
-  } catch(e) {
-    // fallback rates (approximate)
-    ratesCache = {JPY:4.65,KRW:28.5,THB:1.28,SGD:0.043,HKD:0.24,USD:0.031,EUR:0.029,GBP:0.025,AUD:0.048,MYR:0.14,IDR:487,VND:780,MXN:0.54,CHF:0.028};
-    ratesFetchedAt = now;
-  }
-  return ratesCache;
-}
-
-function buildCurrencyBar(budgetTwd) {
-  const options = CURRENCIES.map(c =>
-    `<option value="${c.code}">${c.flag} ${c.name}</option>`
-  ).join('');
-
-  return `
-  <div class="currency-bar" id="currencyBar">
-    <div class="currency-title">💱 費用換算</div>
-    <div class="currency-row">
-      <span class="currency-twd">TWD ${Number(budgetTwd).toLocaleString()}</span>
-      <span class="currency-eq">=</span>
-      <span class="currency-result" id="currencyResult"><span class="currency-loading">載入匯率中…</span></span>
-      <select class="currency-select" id="currencySelect" onchange="convertCurrency(${budgetTwd})">
-        ${options}
-      </select>
-    </div>
-    <div class="currency-rate-note" id="rateNote"></div>
-  </div>`;
-}
-
-async function convertCurrency(budgetTwd) {
-  const select = document.getElementById('currencySelect');
-  const result = document.getElementById('currencyResult');
-  const note = document.getElementById('rateNote');
-  if (!select || !result) return;
-
-  const code = select.value;
-  const cur = CURRENCIES.find(c => c.code === code);
-  result.innerHTML = '<span class="currency-loading">換算中…</span>';
-
-  const rates = await fetchRates();
-  const rate = rates[code];
-  if (!rate) { result.textContent = '—'; return; }
-
-  const amount = budgetTwd * rate;
-  let formatted;
-  if (amount >= 100000) {
-    formatted = cur.symbol + Math.round(amount).toLocaleString();
-  } else if (amount >= 1000) {
-    formatted = cur.symbol + Math.round(amount).toLocaleString();
-  } else {
-    formatted = cur.symbol + amount.toFixed(2);
-  }
-  result.textContent = formatted;
-  note.textContent = `匯率參考：TWD 1 ≈ ${code} ${rate.toFixed(4)}（即時匯率，僅供參考）`;
-}
-
-async function initCurrencyBar(budgetTwd) {
-  await convertCurrency(budgetTwd);
-}
 
 // ── Toast ──
 function showToast(msg) {
@@ -997,12 +858,6 @@ function render(d) {
     } catch(e) {}
   }
 })();
-// ── Init standalone currency converter ──
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initStandaloneCurrency);
-} else {
-  initStandaloneCurrency();
-}
 </script>
 </body>
 </html>
