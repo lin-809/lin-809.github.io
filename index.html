@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wandr — AI 智慧旅遊規劃｜免費生成專屬行程</title>
 <meta name="description" content="輸入目的地與天數，AI 30秒生成專屬旅遊行程，含住宿推薦、景點門票、預算估算。支援全球所有目的地。">
+<meta name="keywords" content="AI旅遊規劃,行程規劃,旅遊助手,東京旅遊,首爾旅遊,峇里島旅遊,免費行程規劃">
+<meta name="author" content="Wandr">
+
+<!-- Open Graph / Facebook / LINE -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lin-809.github.io">
+<meta property="og:title" content="Wandr — AI 旅遊行程規劃器｜免費生成專屬行程">
+<meta property="og:description" content="輸入目的地與天數，AI 30秒生成完整旅遊行程，含住宿推薦、景點門票、預算估算。支援全球所有目的地，完全免費！">
+<meta property="og:image" content="https://lin-809.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:site_name" content="Wandr AI Travel Planner">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wandr — AI 旅遊行程規劃器">
+<meta name="twitter:description" content="AI 30秒生成完整旅遊行程，含住宿推薦、景點門票、預算估算。完全免費！">
+<meta name="twitter:image" content="https://lin-809.github.io/og-image.png">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://lin-809.github.io">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -240,10 +262,15 @@ a{text-decoration:none;color:inherit}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ── LOADING / ERROR ── */
-.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:3rem 1rem}
-.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.spin-txt{font-size:14px;color:var(--text3)}
+.spin-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;padding:3.5rem 1rem}
+.spin-globe{font-size:48px;animation:globe-spin 2s linear infinite;display:block}
+@keyframes globe-spin{0%{transform:rotate(-10deg) scale(1)}25%{transform:rotate(5deg) scale(1.05)}50%{transform:rotate(-5deg) scale(1)}75%{transform:rotate(8deg) scale(1.05)}100%{transform:rotate(-10deg) scale(1)}}
+.spin-bar-wrap{width:240px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.spin-bar{height:100%;background:linear-gradient(90deg,var(--green),#00c88a);border-radius:2px;animation:bar-fill 2.5s ease-in-out infinite}
+@keyframes bar-fill{0%{width:0%;margin-left:0}50%{width:70%;margin-left:0}80%{width:90%;margin-left:0}100%{width:100%;margin-left:0}}
+.spin-txt{font-size:15px;font-weight:500;color:var(--text2);text-align:center}
+.spin-sub{font-size:13px;color:var(--text3);text-align:center;animation:fade-steps 6s infinite}
+@keyframes fade-steps{0%,15%{opacity:1}20%,35%{opacity:0}40%,55%{opacity:1}60%,75%{opacity:0}80%,100%{opacity:1}}
 .errbox{background:#fff5f5;border:1px solid #ffd4d4;border-radius:12px;padding:14px 18px;color:#cc0000;font-size:13px;font-weight:500}
 
 /* ── TESTIMONIALS ── */
@@ -293,6 +320,44 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
   .how-grid,.feat-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:1fr}
   .planner-row{flex-direction:column}
+}
+
+/* ── MOBILE RWD FIXES ── */
+@media(max-width:600px){
+  .opt-groups{gap:12px}
+  .opt-g-label{font-size:10px}
+  .opt-pills{gap:5px}
+  .op{padding:6px 10px;font-size:12px}
+  .planner-body{padding:1.2rem}
+  .pchips{gap:4px}
+  .pchip{padding:4px 8px;font-size:11px}
+  .sumbar{gap:12px;padding:12px 14px}
+  .si .sv{font-size:13px}
+  .action-bar{gap:6px}
+  .act-btn{padding:8px 12px;font-size:12px}
+  .aff-links{gap:5px}
+  .aff-btn{padding:6px 10px;font-size:11px}
+  .hotel-cards{flex-direction:column}
+  .hotel-card{min-width:unset}
+  .dh{padding:10px 12px;gap:8px}
+  .dbody{padding:10px 12px}
+  .arow{gap:8px}
+  .dregen{padding:5px 8px;font-size:11px}
+  .tipsbar{font-size:12px;gap:8px}
+  .hero-title{font-size:28px}
+  .hero-sub{font-size:15px}
+  .search-box{padding:6px}
+  .search-field{font-size:14px;padding:10px 12px}
+  .search-submit{padding:10px 16px;font-size:13px}
+  .hero-stats{gap:1.2rem}
+  .hero-stat-n{font-size:20px}
+  .dest-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .how-grid{grid-template-columns:1fr;gap:14px}
+  .feat-grid{grid-template-columns:1fr;gap:10px}
+  .testi-grid{grid-template-columns:1fr;gap:14px}
+  .footer-top{grid-template-columns:1fr;gap:1.5rem}
+  .planner-card{border-radius:16px}
+  .gen-btn{padding:14px;font-size:14px}
 }
 </style>
 </head>
@@ -852,7 +917,19 @@ async function go(){
   const btn=document.getElementById('gb');
   btn.disabled=true;btn.innerHTML='⏳ AI 規劃中…';
   document.getElementById('affNote').style.display='none';
-  out.innerHTML=`<div class="spin-wrap"><div class="spin"></div><div class="spin-txt">AI 正在為你規劃 ${dest} ${days} 天行程…</div></div>`;
+  const spinMsgs = ['搜尋當地必去景點中…','整理住宿推薦資訊…','計算旅遊預算中…','安排每日行程順序…'];
+  out.innerHTML=`<div class="spin-wrap">
+    <span class="spin-globe">🌍</span>
+    <div class="spin-bar-wrap"><div class="spin-bar"></div></div>
+    <div class="spin-txt">AI 正在規劃 ${dest} ${days} 天行程</div>
+    <div class="spin-sub" id="spinSub">${spinMsgs[0]}</div>
+  </div>`;
+  let msgIdx=0;
+  const spinInterval=setInterval(()=>{
+    msgIdx=(msgIdx+1)%spinMsgs.length;
+    const el=document.getElementById('spinSub');
+    if(el) el.textContent=spinMsgs[msgIdx];
+  },1800);
 
   const prompt=`你是專業旅遊顧問，服務對象是從台灣桃園出發的旅客。
 規劃「${dest}」${days}天（${days-1}夜）旅遊行程。旅伴：${companion}。預算：${budget}。偏好：${prefs}。
@@ -872,6 +949,7 @@ Day1=抵達日，Day${days}=返程日。每時段1–2活動。繁體中文。`;
   }catch(e){
     out.innerHTML=`<div class="errbox">⚠️ ${e.message||'發生錯誤，請重試'}</div>`;
   }finally{
+    clearInterval(spinInterval);
     btn.disabled=false;btn.innerHTML='✨ 立即生成行程';
   }
 }
