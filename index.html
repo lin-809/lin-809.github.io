@@ -238,6 +238,7 @@ a{text-decoration:none;color:inherit}
 .aff-booking{background:#003580;color:#fff}
 .aff-kkday{background:#ff5722;color:#fff}
 .aff-klook{background:#ff5c1c;color:#fff}
+.aff-trip{background:#2577e3;color:#fff}
 
 /* ── HOTELS ── */
 .hotel-section{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -758,6 +759,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       <div>
         <div class="footer-col-title">合作平台</div>
         <div class="footer-links-list">
+          <a href="https://www.trip.com" target="_blank">Trip.com 機+酒</a>
           <a href="https://www.agoda.com" target="_blank">Agoda 訂房</a>
           <a href="https://www.booking.com" target="_blank">Booking.com</a>
           <a href="https://www.kkday.com" target="_blank">KKday 行程</a>
@@ -790,6 +792,8 @@ const AFF = {
   booking: d=>`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(d)}&aid=YOUR_BOOKING_AID`,
   kkday:   d=>`https://www.kkday.com/zh-tw/country/search?q=${encodeURIComponent(d)}&cid=YOUR_KKDAY_CID`,
   klook:   d=>`https://www.klook.com/zh-TW/search/?query=${encodeURIComponent(d)}&aid=YOUR_KLOOK_AID`,
+  trip:    d=>`https://www.trip.com/hotels/list?searchWord=${encodeURIComponent(d)}&allianceid=YOUR_TRIP_ALLIANCE_ID&sid=YOUR_TRIP_SID`,
+  tripFlight: d=>`https://www.trip.com/flights/?allianceid=YOUR_TRIP_ALLIANCE_ID&sid=YOUR_TRIP_SID`,
 };
 
 let days=5, heroDays=5, lastResult=null;
@@ -1143,7 +1147,7 @@ function render(d){
     <button class="act-btn share" onclick="shareItinerary()">🔗 複製分享連結</button>
   </div>`;
   if(d.tips?.length) h+=`<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
-  h+=`<div class="aff-banner"><div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div><div class="aff-links"><a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a><a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a><a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a><a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a></div></div>`;
+  h+=`<div class="aff-banner"><div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div><div class="aff-links"><a class="aff-btn aff-trip" href="${AFF.trip(d.dest)}" target="_blank" rel="noopener">Trip.com</a><a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a><a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a><a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a><a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a></div></div>`;
   if(d.hotels?.length){
     h+=`<div class="hotel-section"><div class="hotel-sec-title">🏨 住宿推薦</div><div class="hotel-cards">`;
     d.hotels.forEach(hotel=>{
