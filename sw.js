@@ -1,6 +1,6 @@
 // Wandr PWA Service Worker
 // 策略：頁面走網路優先（保證拿到最新版），靜態資源與 CDN 走快取優先（離線可用）
-const CACHE = "wandr-v1";
+const CACHE = "wandr-v2";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -27,10 +27,10 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
 
-  // HTML 導覽請求：網路優先，斷線時用快取
+  // HTML 導覽請求：網路優先（略過 HTTP 快取，確保拿到最新版），斷線時用快取
   if (req.mode === "navigate") {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-cache" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put("./index.html", copy));
