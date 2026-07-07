@@ -1,0 +1,32 @@
+{
+  "name": "Wandr — AI 智慧旅遊規劃",
+  "short_name": "Wandr",
+  "description": "輸入目的地與天數，AI 30秒生成專屬旅遊行程，含住宿推薦、景點門票、預算估算。",
+  "lang": "zh-TW",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#00855a",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

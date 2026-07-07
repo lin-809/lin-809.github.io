@@ -27,6 +27,16 @@
 
 <!-- Canonical -->
 <link rel="canonical" href="https://lin-809.github.io">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00855a">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Wandr">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1002,6 +1012,48 @@ function render(d){
       document.getElementById('xc').classList.add('on');
       setTimeout(()=>{render(data);document.getElementById('affNote').style.display='block';document.getElementById('planner').scrollIntoView({behavior:'smooth'});},500);
     }catch(e){}
+  }
+})();
+</script>
+
+<!-- PWA：service worker 註冊 + 安裝提示按鈕 -->
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js').catch(function(e){console.log('SW 註冊失敗',e);});
+    });
+  }
+
+  // Android/桌面 Chrome：攔截安裝事件，顯示浮動「安裝 APP」按鈕
+  var deferredPrompt=null;
+  var btn=document.createElement('button');
+  btn.id='pwaInstallBtn';
+  btn.textContent='📲 安裝 APP';
+  btn.style.cssText='display:none;position:fixed;bottom:20px;right:20px;z-index:999;padding:12px 20px;border:none;border-radius:999px;background:#00855a;color:#fff;font-size:15px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,0.25);cursor:pointer;font-family:inherit';
+  document.body.appendChild(btn);
+
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    btn.style.display='block';
+  });
+  btn.addEventListener('click',function(){
+    if(!deferredPrompt)return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(){deferredPrompt=null;btn.style.display='none';});
+  });
+  window.addEventListener('appinstalled',function(){btn.style.display='none';});
+
+  // iOS Safari 沒有 beforeinstallprompt：第一次造訪時提示用「加入主畫面」
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var inApp=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(isIOS&&!inApp&&!localStorage.getItem('iosHintShown')){
+    var tip=document.createElement('div');
+    tip.style.cssText='position:fixed;bottom:16px;left:16px;right:16px;z-index:999;background:#1a1a1a;color:#fff;padding:14px 44px 14px 16px;border-radius:14px;font-size:14px;line-height:1.5;box-shadow:0 8px 32px rgba(0,0,0,0.3)';
+    tip.innerHTML='📲 把 Wandr 裝成 APP：點 Safari 下方 <b>分享</b> 按鈕 → <b>加入主畫面</b><span style="position:absolute;top:8px;right:12px;font-size:20px;cursor:pointer" onclick="this.parentNode.remove();localStorage.setItem(\'iosHintShown\',\'1\')">✕</span>';
+    document.body.appendChild(tip);
+    setTimeout(function(){if(tip.parentNode){tip.remove();localStorage.setItem('iosHintShown','1');}},12000);
   }
 })();
 </script>
