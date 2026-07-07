@@ -180,8 +180,21 @@ a{text-decoration:none;color:inherit}
 .op{padding:7px 14px;font-size:13px;border-radius:20px;cursor:pointer;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .13s;font-family:inherit;font-weight:500}
 .op:hover{border-color:var(--green);color:var(--green);background:#fff}
 .op.on{background:var(--green);border-color:var(--green);color:#fff}
-.op.on-purple{background:#6366f1;border-color:#6366f1;color:#fff}
-.op.on-amber{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.op .op-sub{display:block;font-size:10px;opacity:.75;font-weight:400;margin-top:1px}
+.booked-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap}
+.booked-row select,.booked-row input{padding:7px 8px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;background:#fff;color:var(--text)}
+.booked-row select{flex:0 0 100px}
+.booked-row .b-name{flex:1;min-width:120px}
+.booked-row .b-price{flex:0 0 110px}
+.booked-row .b-del{border:none;background:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 4px}
+.booked-row .b-del:hover{color:var(--accent)}
+.add-booked{border:1.5px dashed var(--border);background:none;border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text2);cursor:pointer;font-family:inherit}
+.add-booked:hover{border-color:var(--green);color:var(--green)}
+.free-note{width:100%;padding:9px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;resize:vertical;min-height:56px;color:var(--text);background:#fff}
+.free-note:focus{outline:none;border-color:var(--green)}
+.custom-budget-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text2);flex-wrap:wrap}
+.custom-budget-wrap input{width:140px;padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;color:var(--text)}
+.custom-budget-wrap input:focus{outline:none;border-color:var(--green)}
 
 /* ── GEN BUTTON ── */
 .gen-btn{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -604,32 +617,53 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
           <div class="opt-g">
             <div class="opt-g-label">旅伴類型（單選）</div>
             <div class="opt-pills" id="companionPills">
-              <button class="op on" style="background:var(--green);border-color:var(--green);color:#fff" data-v="一個人獨旅">👤 一個人</button>
-              <button class="op on-purple" data-v="情侶浪漫旅遊">👫 情侶</button>
-              <button class="op on-purple" data-v="親子家庭旅遊">👨‍👩‍👧 親子</button>
-              <button class="op on-purple" data-v="朋友團體旅遊">👥 朋友團</button>
-              <button class="op on-purple" data-v="商務差旅">💼 商務</button>
+              <button class="op on" data-v="一個人獨旅">👤 一個人</button>
+              <button class="op" data-v="情侶浪漫旅遊">👫 情侶</button>
+              <button class="op" data-v="親子家庭旅遊">👨‍👩‍👧 親子</button>
+              <button class="op" data-v="朋友團體旅遊">👥 朋友團</button>
+              <button class="op" data-v="商務差旅">💼 商務</button>
             </div>
           </div>
           <div class="opt-g">
             <div class="opt-g-label">預算等級（單選）</div>
             <div class="opt-pills" id="budgetPills">
-              <button class="op on-amber" data-v="省錢背包客預算（每人每日 TWD 1500 以下）">💰 省錢背包</button>
-              <button class="op on" style="background:var(--green);border-color:var(--green);color:#fff" data-v="一般旅遊預算（每人每日 TWD 1500–4000）">💰💰 一般旅遊</button>
-              <button class="op on-amber" data-v="享受型旅遊預算（每人每日 TWD 4000 以上）">💰💰💰 享受旅遊</button>
+              <button class="op" data-v="省錢背包客預算（每人每日 TWD 1,500 以下，不含機票）">💰 省錢背包<span class="op-sub">每日 &lt; 1,500/人</span></button>
+              <button class="op on" data-v="一般旅遊預算（每人每日 TWD 1,500–4,000，不含機票）">💰💰 一般旅遊<span class="op-sub">每日 1,500–4,000/人</span></button>
+              <button class="op" data-v="享受型旅遊預算（每人每日 TWD 4,000–10,000，不含機票）">💰💰💰 享受旅遊<span class="op-sub">每日 4,000 以上/人</span></button>
+            </div>
+            <div class="custom-budget-wrap">
+              <span>或自訂總預算：TWD</span>
+              <input type="number" id="customBudget" min="0" step="1000" placeholder="例：50000">
+              <span>／每人（填了就以此為準）</span>
+            </div>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">飲食偏好（單選）</div>
+            <div class="opt-pills" id="dietPills">
+              <button class="op on" data-v="一般葷食餐廳">🍜 葷食</button>
+              <button class="op" data-v="全素/蔬食餐廳（所有推薦餐廳必須是素食）">🥗 素食</button>
+              <button class="op" data-v="有素食選項的葷素餐廳">🍱 葷素皆可</button>
             </div>
           </div>
           <div class="opt-g">
             <div class="opt-g-label">旅遊偏好（可複選）</div>
             <div class="opt-pills">
-              <button class="op on" data-v="美食（葷食餐廳）">🍜 葷食</button>
-              <button class="op" data-v="素食餐廳">🥗 素食</button>
-              <button class="op" data-v="葷素皆有的餐廳">🍱 葷素皆可</button>
               <button class="op on" data-v="文化景點">⛩ 文化</button>
-              <button class="op" data-v="購物">🛍 購物</button>
+              <button class="op" data-v="歷史古蹟">🏯 古蹟</button>
+              <button class="op" data-v="博物館與美術館">🖼 博物館</button>
               <button class="op" data-v="自然風景">🌿 自然</button>
-              <button class="op" data-v="夜生活">🌙 夜生活</button>
+              <button class="op" data-v="登山健行步道">⛰ 健行</button>
+              <button class="op" data-v="海灘與水上活動">🏖 海灘</button>
+              <button class="op" data-v="溫泉療癒">♨️ 溫泉</button>
+              <button class="op" data-v="主題樂園">🎢 樂園</button>
+              <button class="op" data-v="購物">🛍 購物</button>
+              <button class="op" data-v="在地市集與街頭小吃">🥟 市集小吃</button>
+              <button class="op" data-v="特色咖啡廳與甜點">☕ 咖啡甜點</button>
+              <button class="op" data-v="夜生活與酒吧">🌙 夜生活</button>
+              <button class="op" data-v="攝影打卡熱點">📸 打卡</button>
+              <button class="op" data-v="動漫與流行文化聖地">🎌 動漫聖地</button>
               <button class="op" data-v="當地人私房景點">🗺 私房</button>
+              <button class="op" data-v="親子友善活動">👶 親子友善</button>
             </div>
           </div>
           <div class="opt-g">
@@ -640,6 +674,15 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
               <button class="op" data-v="秋季旅遊（紅葉楓情）">🍂 秋</button>
               <button class="op" data-v="冬季旅遊（溫泉雪景）">❄️ 冬</button>
             </div>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">已預訂項目（選填，AI 會圍繞這些安排並納入預算）</div>
+            <div id="bookedList"></div>
+            <button class="add-booked" type="button" onclick="addBookedRow()">＋ 新增已訂項目（機票、住宿…）</button>
+          </div>
+          <div class="opt-g">
+            <div class="opt-g-label">其他需求（選填，用自己的話告訴 AI）</div>
+            <textarea class="free-note" id="freeNote" placeholder="例：已訂新宿的飯店，行程請以新宿為中心；第三天想留半天逛藥妝；帶長輩同行避免走太多路…"></textarea>
           </div>
         </div>
 
@@ -774,32 +817,46 @@ di.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
 function clrDest(){di.value='';xc.classList.remove('on');di.focus();}
 function setD(v){di.value=v;xc.classList.add('on');}
 
-// ── Single select groups ──
-['companionPills','budgetPills'].forEach(id=>{
+// ── Single select groups（選中變綠，其餘恢復灰白）──
+['companionPills','budgetPills','dietPills'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
     const p=e.target.closest('.op');
     if(!p) return;
     document.querySelectorAll('#'+id+' .op').forEach(x=>x.classList.remove('on'));
     p.classList.add('on');
-    // force green active style
-    p.style.background='var(--green)';
-    p.style.borderColor='var(--green)';
-    p.style.color='#fff';
-    // reset others
-    document.querySelectorAll('#'+id+' .op').forEach(x=>{
-      if(!x.classList.contains('on')){
-        x.style.background='';x.style.borderColor='';x.style.color='';
-      }
-    });
   });
 });
 
 // ── Multi select ──
-document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op').forEach(p=>{
+document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills):not(#dietPills) .op').forEach(p=>{
   p.addEventListener('click',()=>p.classList.toggle('on'));
 });
 
-function getVal(sel){return[...document.querySelectorAll(sel+'.on')].map(p=>p.dataset.v).join('、');}
+function getVal(sel){return[...document.querySelectorAll(sel+' .op.on')].map(p=>p.dataset.v).join('、');}
+
+// ── 已預訂項目 ──
+function addBookedRow(type,name,price){
+  const row=document.createElement('div');
+  row.className='booked-row';
+  row.innerHTML=`<select class="b-type">
+      <option value="✈️ 機票"${type==='✈️ 機票'?' selected':''}>✈️ 機票</option>
+      <option value="🏨 住宿"${type==='🏨 住宿'?' selected':''}>🏨 住宿</option>
+      <option value="🚆 交通"${type==='🚆 交通'?' selected':''}>🚆 交通</option>
+      <option value="🎟 門票/活動"${type==='🎟 門票/活動'?' selected':''}>🎟 門票/活動</option>
+      <option value="📦 其他"${type==='📦 其他'?' selected':''}>📦 其他</option>
+    </select>
+    <input class="b-name" type="text" placeholder="名稱（例：新宿王子大飯店 4晚）" value="${name||''}">
+    <input class="b-price" type="number" min="0" placeholder="價格 TWD" value="${price||''}">
+    <button class="b-del" type="button" title="刪除" onclick="this.parentNode.remove()">✕</button>`;
+  document.getElementById('bookedList').appendChild(row);
+}
+function getBookedItems(){
+  return [...document.querySelectorAll('.booked-row')].map(r=>({
+    type:r.querySelector('.b-type').value,
+    name:r.querySelector('.b-name').value.trim(),
+    price:parseInt(r.querySelector('.b-price').value,10)||0,
+  })).filter(b=>b.name||b.price>0);
+}
 
 // ── Affiliate links ──
 function affLinks(type,dest,name){
@@ -880,9 +937,12 @@ async function regenDay(dayNum){
   if(btn){btn.textContent='⏳';btn.disabled=true;}
   const d=lastResult;
   const companion=getVal('#companionPills');
-  const budget=getVal('#budgetPills');
-  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、');
-  const prompt=`重新規劃「${d.dest}」第${dayNum}天行程。旅伴：${companion}，預算：${budget}，偏好：${prefs}。
+  const customB=parseInt(document.getElementById('customBudget').value,10)||0;
+  const budget=customB>0?`每人總預算 TWD ${customB.toLocaleString()}`:getVal('#budgetPills');
+  const diet=getVal('#dietPills')||'一般葷食餐廳';
+  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills):not(#dietPills) .op.on')].map(p=>p.dataset.v).join('、');
+  const note=document.getElementById('freeNote').value.trim();
+  const prompt=`重新規劃「${d.dest}」第${dayNum}天行程。旅伴：${companion}，預算：${budget}，飲食：${diet}（餐廳必須符合），偏好：${prefs}。${note?`特別需求：${note}。`:''}
 回傳純JSON（禁止markdown）：{"day":${dayNum},"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}
 繁體中文，每時段1–2活動。`;
   try{
@@ -921,8 +981,15 @@ async function go(){
   const dest=di.value.trim();
   if(!dest){di.focus();di.style.borderColor='#ff6b35';setTimeout(()=>di.style.borderColor='',1200);return;}
   const companion=getVal('#companionPills');
-  const budget=getVal('#budgetPills');
-  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills) .op.on')].map(p=>p.dataset.v).join('、')||'觀光';
+  const diet=getVal('#dietPills')||'一般葷食餐廳';
+  const customB=parseInt(document.getElementById('customBudget').value,10)||0;
+  const budget=customB>0?`每人總預算 TWD ${customB.toLocaleString()}（請嚴格控制整趟花費不超過此金額）`:getVal('#budgetPills');
+  const prefs=[...document.querySelectorAll('.opt-pills:not(#companionPills):not(#budgetPills):not(#dietPills) .op.on')].map(p=>p.dataset.v).join('、')||'觀光';
+  const booked=getBookedItems();
+  const bookedTotal=booked.reduce((s,b)=>s+b.price,0);
+  const bookedTxt=booked.length?`\n已預訂項目（不要重複推薦同類項目，行程與預算必須配合它們；已訂住宿則整趟行程以該住宿位置為中心）：\n${booked.map(b=>`- ${b.type} ${b.name}${b.price?`（TWD ${b.price.toLocaleString()}）`:''}`).join('\n')}`:'';
+  const note=document.getElementById('freeNote').value.trim();
+  const noteTxt=note?`\n旅客特別需求（務必遵守）：${note}`:'';
   const out=document.getElementById('out');
   const btn=document.getElementById('gb');
   btn.disabled=true;btn.innerHTML='⏳ AI 規劃中…';
@@ -942,9 +1009,9 @@ async function go(){
   },1800);
 
   const prompt=`你是專業旅遊顧問，服務對象是從台灣桃園出發的旅客。
-規劃「${dest}」${days}天（${days-1}夜）旅遊行程。旅伴：${companion}。預算：${budget}。偏好：${prefs}。
+規劃「${dest}」${days}天（${days-1}夜）旅遊行程。旅伴：${companion}。預算等級：${budget}（預算等級必須明顯影響住宿檔次、餐廳價位與活動選擇）。飲食：${diet}（所有餐廳推薦必須符合此飲食偏好）。偏好：${prefs}。${bookedTxt}${noteTxt}
 回傳純JSON（禁止markdown，禁止說明）：
-{"dest":"${dest}","days":${days},"budget_twd":預估台幣整數,"highlight":"15字內亮點","tips":["技巧1","技巧2","技巧3"],"hotels":[{"tier":"平價","name":"真實飯店名","area":"區域","price_twd":"TWD範圍/晚"},{"tier":"中高級","name":"...","area":"...","price_twd":"..."},{"tier":"奢華","name":"...","area":"...","price_twd":"..."}],"itinerary":[{"day":1,"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}]}
+{"dest":"${dest}","days":${days},"budget_twd":預估台幣整數（每人整趟總花費，含已預訂項目的 TWD ${bookedTotal}，需與預算等級一致）,"highlight":"15字內亮點","tips":["技巧1","技巧2","技巧3"],"hotels":[{"tier":"平價","name":"真實飯店名","area":"區域","price_twd":"TWD範圍/晚"},{"tier":"中高級","name":"...","area":"...","price_twd":"..."},{"tier":"奢華","name":"...","area":"...","price_twd":"..."}],"itinerary":[{"day":1,"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"名稱","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}]}
 Day1=抵達日，Day${days}=返程日。每時段1–2活動。繁體中文。`;
 
   try{
@@ -969,16 +1036,24 @@ function render(d){
   const out=document.getElementById('out');
   const bud=d.budget_twd?'TWD '+Number(d.budget_twd).toLocaleString():'—';
   const companion=getVal('#companionPills').split('（')[0];
-  const budget=getVal('#budgetPills').split('（')[0];
+  const customB=parseInt(document.getElementById('customBudget').value,10)||0;
+  const budget=customB>0?`自訂 TWD ${customB.toLocaleString()}`:(getVal('#budgetPills').split('（')[0]||'一般旅遊');
+  const bookedSum=getBookedItems().reduce((s,b)=>s+b.price,0);
   let h=`
   <div class="sumbar">
     <div class="si"><span class="sl">目的地</span><span class="sv">📍 ${d.dest}</span></div>
     <div class="si"><span class="sl">天數</span><span class="sv">${d.days}天 ${d.days-1}夜</span></div>
     <div class="si"><span class="sl">旅伴</span><span class="sv">${companion}</span></div>
     <div class="si"><span class="sl">預算</span><span class="sv">${budget}</span></div>
-    <div class="si"><span class="sl">預估費用（一人）</span><span class="sv">${bud}</span></div>
+    ${bookedSum>0?`<div class="si"><span class="sl">已訂花費（一人）</span><span class="sv">TWD ${bookedSum.toLocaleString()}</span></div>`:''}
+    <div class="si"><span class="sl">預估總費用（一人）</span><span class="sv">${bud}</span></div>
     <div class="si shi"><span class="sl">亮點</span><span class="sv">${d.highlight||''}</span></div>
-  </div>
+  </div>`;
+  const bookedItems=getBookedItems();
+  if(bookedItems.length){
+    h+=`<div class="tipsbar" style="background:var(--green-light)">${bookedItems.map(b=>`<span>✅ 已訂：${b.type} ${b.name}${b.price?`（TWD ${b.price.toLocaleString()}）`:''}</span>`).join('')}</div>`;
+  }
+  h+=`
   <div class="action-bar">
     <button class="act-btn pdf" onclick="exportPDF()">📄 匯出 PDF</button>
     <button class="act-btn share" onclick="shareItinerary()">🔗 複製分享連結</button>
