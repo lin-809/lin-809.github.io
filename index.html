@@ -238,6 +238,26 @@ a{text-decoration:none;color:inherit}
 .act-btn.pdf:hover{background:#ffe4d8}
 .act-btn.share{background:var(--green-light);color:var(--green);border:1.5px solid #b8e8da}
 .act-btn.share:hover{background:#d4f0e8}
+.act-btn.save{background:#eef6ff;color:#2577e3;border:1.5px solid #bcd9f7}
+.act-btn.save:hover{background:#dcecff}
+.act-btn.save.saved{background:var(--green-light);color:var(--green);border-color:#b8e8da}
+.trip-count{display:none;margin-left:5px;background:var(--green);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px}
+.trip-count.show{display:inline-block}
+.mt-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto}
+.mt-overlay.open{display:flex}
+.mt-panel{background:var(--bg);border-radius:18px;max-width:640px;width:100%;padding:22px;box-shadow:var(--shadow-lg)}
+.mt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.mt-title{font-size:18px;font-weight:700;color:var(--text)}
+.mt-close{border:none;background:var(--bg3);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--text2)}
+.mt-empty{text-align:center;color:var(--text3);padding:36px 8px;font-size:14px;line-height:1.7}
+.mt-card{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;background:#fff}
+.mt-card-info{flex:1;min-width:0}
+.mt-card-dest{font-weight:700;font-size:15px;color:var(--text)}
+.mt-card-meta{font-size:12px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt-card-btns{display:flex;gap:6px;flex-shrink:0}
+.mt-btn{border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.mt-btn.open{background:var(--green);color:#fff}
+.mt-btn.del{background:var(--accent-light);color:var(--accent)}
 
 /* ── TIPS ── */
 .tipsbar{background:var(--green-light);border:1px solid #b8e8da;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--green-dark);display:flex;flex-wrap:wrap;gap:12px}
@@ -414,6 +434,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       <a href="#destinations">熱門目的地</a>
       <a href="#how">使用說明</a>
       <a href="#planner">開始規劃</a>
+      <a href="#" onclick="openMyTrips();return false">💾 我的行程<span class="trip-count" id="tripCount"></span></a>
     </nav>
     <a href="#planner" class="nav-btn">✨ 免費規劃行程</a>
   </div>
@@ -808,6 +829,17 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
 
 <div class="toast" id="toast"></div>
 
+<!-- 我的行程(離線收藏)-->
+<div class="mt-overlay" id="mtOverlay" onclick="if(event.target===this)closeMyTrips()">
+  <div class="mt-panel">
+    <div class="mt-head">
+      <div class="mt-title">💾 我的行程</div>
+      <button class="mt-close" onclick="closeMyTrips()">✕</button>
+    </div>
+    <div id="mtList"></div>
+  </div>
+</div>
+
 <script>
 const WORKER_URL = "https://fragrant-bush-aaff.jocker96963.workers.dev";
 const AFF = {
@@ -912,6 +944,8 @@ document.getElementById('aiKey').addEventListener('input',e=>{
   }
 })();
 
+updateTripCount(); // 頁面載入時更新「我的行程」徽章數字
+
 // ── 統一 AI 呼叫（Wandr 預設 / Gemini / ChatGPT）──
 async function callAI(prompt){
   const prov=currentProvider();
@@ -995,11 +1029,54 @@ function shareItinerary(){
   if(!lastResult) return;
   const data=encodeURIComponent(JSON.stringify(lastResult));
   const url=window.location.origin+window.location.pathname+'?share='+data;
-  navigator.clipboard.writeText(url.length>8000
-    ?`✈️ ${lastResult.dest} ${lastResult.days}天行程\nTWD ${Number(lastResult.budget_twd).toLocaleString()}\n${lastResult.highlight}\n\nWandr 免費規劃：${window.location.href}`
-    :url);
+  const useUrl=url.length<=8000;
+  const shareUrl=useUrl?url:(window.location.origin+window.location.pathname);
+  const text=`✈️ 我用 Wandr 規劃了「${lastResult.dest}」${lastResult.days}天行程！${lastResult.highlight?'\n'+lastResult.highlight:''}`;
+  // 原生分享面板(手機:LINE、訊息、更多…),不支援時退回複製連結
+  if(navigator.share){
+    navigator.share({title:`Wandr · ${lastResult.dest} ${lastResult.days}天行程`,text,url:shareUrl}).catch(()=>{});
+    return;
+  }
+  navigator.clipboard.writeText(useUrl?url:(text+'\n'+shareUrl));
   showToast('✅ 分享連結已複製！');
 }
+
+// ── 我的行程(離線收藏,存在裝置本機)──
+function getSavedTrips(){ try{return JSON.parse(localStorage.getItem('savedTrips'))||[]}catch(e){return[]} }
+function setSavedTrips(t){ localStorage.setItem('savedTrips',JSON.stringify(t)); updateTripCount(); }
+function updateTripCount(){ const n=getSavedTrips().length; const el=document.getElementById('tripCount'); if(!el)return; el.textContent=n; el.classList.toggle('show',n>0); }
+function tripId(d){ return (d.dest||'')+'|'+(d.days||''); }
+function tripSaved(d){ return getSavedTrips().some(t=>t.id===tripId(d)); }
+function saveTrip(){
+  if(!lastResult) return;
+  const trips=getSavedTrips(), id=tripId(lastResult);
+  if(trips.some(t=>t.id===id)){
+    setSavedTrips(trips.filter(t=>t.id!==id)); showToast('已從收藏移除');
+  }else{
+    trips.unshift({id,dest:lastResult.dest,days:lastResult.days,budget_twd:lastResult.budget_twd,highlight:lastResult.highlight,savedAt:Date.now(),data:lastResult});
+    setSavedTrips(trips.slice(0,50)); showToast('✅ 已收藏！離線也能看');
+  }
+  syncSaveBtn();
+}
+function syncSaveBtn(){ const b=document.getElementById('saveBtn'); if(!b||!lastResult)return; const s=tripSaved(lastResult); b.classList.toggle('saved',s); b.innerHTML=s?'💚 已收藏':'💾 收藏行程'; }
+function openMyTrips(){ renderMyTrips(); document.getElementById('mtOverlay').classList.add('open'); }
+function closeMyTrips(){ document.getElementById('mtOverlay').classList.remove('open'); }
+function renderMyTrips(){
+  const trips=getSavedTrips(), list=document.getElementById('mtList');
+  if(!trips.length){ list.innerHTML='<div class="mt-empty">還沒有收藏的行程 🗺️<br>生成行程後點「💾 收藏行程」<br>就會出現在這裡,離線也能看</div>'; return; }
+  list.innerHTML=trips.map((t,i)=>`<div class="mt-card"><div class="mt-card-info"><div class="mt-card-dest">📍 ${t.dest} ${t.days}天</div><div class="mt-card-meta">${t.highlight||''}${t.budget_twd?' · 約 TWD '+Number(t.budget_twd).toLocaleString():''}</div></div><div class="mt-card-btns"><button class="mt-btn open" onclick="openSavedTrip(${i})">開啟</button><button class="mt-btn del" onclick="deleteSavedTrip(${i})">刪除</button></div></div>`).join('');
+}
+function openSavedTrip(i){
+  const t=getSavedTrips()[i]; if(!t)return;
+  lastResult=t.data;
+  document.getElementById('di').value=t.data.dest||'';
+  document.getElementById('xc').classList.add('on');
+  render(t.data);
+  closeMyTrips();
+  document.getElementById('affNote').style.display='block';
+  document.getElementById('planner').scrollIntoView({behavior:'smooth'});
+}
+function deleteSavedTrip(i){ const t=getSavedTrips(); t.splice(i,1); setSavedTrips(t); renderMyTrips(); }
 
 // ── PDF Export ──
 async function exportPDF(){
@@ -1094,6 +1171,7 @@ function renderDayBody(day,dest){
 async function go(){
   const dest=di.value.trim();
   if(!dest){di.focus();di.style.borderColor='#ff6b35';setTimeout(()=>di.style.borderColor='',1200);return;}
+  if(!navigator.onLine){ showToast('📡 目前沒有網路,無法生成新行程。可點右上「💾 我的行程」查看已收藏的行程。'); return; }
   const companion=getVal('#companionPills');
   const diet=getVal('#dietPills')||'一般葷食餐廳';
   const customB=parseInt(document.getElementById('customBudget').value,10)||0;
@@ -1166,8 +1244,9 @@ function render(d){
   }
   h+=`
   <div class="action-bar">
+    <button class="act-btn save" id="saveBtn" onclick="saveTrip()">💾 收藏行程</button>
     <button class="act-btn pdf" onclick="exportPDF()">📄 匯出 PDF</button>
-    <button class="act-btn share" onclick="shareItinerary()">🔗 複製分享連結</button>
+    <button class="act-btn share" onclick="shareItinerary()">📲 分享行程</button>
   </div>`;
   if(d.tips?.length) h+=`<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
   h+=`<div class="aff-banner"><div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div><div class="aff-links"><a class="aff-btn aff-trip" href="${AFF.trip(d.dest)}" target="_blank" rel="noopener">Trip.com</a><a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a><a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a><a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a><a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a></div></div>`;
@@ -1185,6 +1264,7 @@ function render(d){
   });
   h+=`</div>`;
   out.innerHTML=h;
+  syncSaveBtn();
 }
 
 // ── Load shared URL ──
