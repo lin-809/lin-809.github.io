@@ -115,8 +115,21 @@ a{text-decoration:none;color:inherit}
 .dest-card{border-radius:16px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:3/4;transition:transform .2s,box-shadow .2s}
 .dest-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
 .dest-card.large{grid-row:span 2;aspect-ratio:auto}
-.dest-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .3s}
-.dest-card:hover .dest-bg{transform:scale(1.04)}
+.dest-bg{position:absolute;inset:-6%;background-size:cover;background-position:center;will-change:transform;animation:kb1 26s ease-in-out infinite alternate}
+/* 電影感 Ken Burns:每張卡片方向、速度略不同,看起來像會動的寫實照 */
+.dest-card:nth-child(1) .dest-bg{animation:kb1 30s ease-in-out infinite alternate}
+.dest-card:nth-child(2) .dest-bg{animation:kb2 24s ease-in-out infinite alternate}
+.dest-card:nth-child(3) .dest-bg{animation:kb3 28s ease-in-out infinite alternate}
+.dest-card:nth-child(4) .dest-bg{animation:kb4 22s ease-in-out infinite alternate}
+.dest-card:nth-child(5) .dest-bg{animation:kb2 27s ease-in-out infinite alternate}
+.dest-card:nth-child(6) .dest-bg{animation:kb3 25s ease-in-out infinite alternate}
+.dest-card:nth-child(7) .dest-bg{animation:kb1 23s ease-in-out infinite alternate}
+.dest-card:hover .dest-bg{animation-play-state:paused}
+@keyframes kb1{from{transform:scale(1.06) translate(1%,1%)}to{transform:scale(1.18) translate(-2%,-3%)}}
+@keyframes kb2{from{transform:scale(1.16) translate(-2%,-1%)}to{transform:scale(1.06) translate(2%,2%)}}
+@keyframes kb3{from{transform:scale(1.08) translate(-1%,2%)}to{transform:scale(1.2) translate(2%,-2%)}}
+@keyframes kb4{from{transform:scale(1.18) translate(2%,-2%)}to{transform:scale(1.07) translate(-2%,1%)}}
+@media(prefers-reduced-motion:reduce){.dest-bg{animation:none!important;inset:0}}
 .dest-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,transparent 50%)}
 .dest-info{position:absolute;bottom:0;left:0;right:0;padding:1.2rem}
 .dest-name{font-size:16px;font-weight:600;color:#fff}
