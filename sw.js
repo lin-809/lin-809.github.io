@@ -1,6 +1,6 @@
 // Wandr PWA Service Worker
 // 策略：頁面走網路優先（保證拿到最新版），靜態資源與 CDN 走快取優先（離線可用）
-const CACHE = "wandr-v7";
+const CACHE = "wandr-v8";
 const PRECACHE = [
   "./",
   "./index.html",

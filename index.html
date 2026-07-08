@@ -1160,8 +1160,19 @@ async function importTrip(){
 // ── 目的地天氣(Open-Meteo,免費、免 API 金鑰)──
 const WX={0:['☀️','晴朗'],1:['🌤️','大致晴朗'],2:['⛅','局部多雲'],3:['☁️','陰天'],45:['🌫️','有霧'],48:['🌫️','霧凇'],51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],56:['🌧️','凍雨'],57:['🌧️','凍雨'],61:['🌧️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],66:['🌧️','凍雨'],67:['🌧️','凍雨'],71:['🌨️','小雪'],73:['🌨️','中雪'],75:['❄️','大雪'],77:['❄️','雪粒'],80:['🌦️','陣雨'],81:['🌧️','陣雨'],82:['⛈️','強陣雨'],85:['🌨️','陣雪'],86:['❄️','大陣雪'],95:['⛈️','雷雨'],96:['⛈️','雷雨冰雹'],99:['⛈️','強雷雨']};
 function wxInfo(c){ return WX[c]||['🌡️','—']; }
-// 部分繁中譯名 Open-Meteo 對不上,用英文別名補救
-const WX_ALIAS={'峇里島':'Bali','巴里島':'Bali','曼谷':'Bangkok','首爾':'Seoul','沖繩':'Okinawa','清邁':'Chiang Mai','宿霧':'Cebu','蘇美島':'Ko Samui','普吉島':'Phuket','長灘島':'Boracay','峴港':'Da Nang','吉隆坡':'Kuala Lumpur','胡志明市':'Ho Chi Minh City'};
+// Open-Meteo 中文地名查詢時好時壞,常見城市一律用英文別名確保命中
+const WX_ALIAS={
+  // 日本
+  '東京':'Tokyo','大阪':'Osaka','京都':'Kyoto','北海道':'Sapporo','札幌':'Sapporo','名古屋':'Nagoya','福岡':'Fukuoka','沖繩':'Okinawa','橫濱':'Yokohama','神戶':'Kobe','奈良':'Nara','廣島':'Hiroshima',
+  // 韓國
+  '首爾':'Seoul','釜山':'Busan','濟州':'Jeju','濟州島':'Jeju',
+  // 東南亞
+  '曼谷':'Bangkok','清邁':'Chiang Mai','普吉島':'Phuket','蘇美島':'Ko Samui','峇里島':'Bali','巴里島':'Bali','雅加達':'Jakarta','吉隆坡':'Kuala Lumpur','檳城':'Penang','新加坡':'Singapore','宿霧':'Cebu','長灘島':'Boracay','馬尼拉':'Manila','峴港':'Da Nang','胡志明市':'Ho Chi Minh City','河內':'Hanoi',
+  // 大中華
+  '台北':'Taipei','臺北':'Taipei','台中':'Taichung','臺中':'Taichung','高雄':'Kaohsiung','台南':'Tainan','臺南':'Tainan','花蓮':'Hualien','台東':'Taitung','香港':'Hong Kong','澳門':'Macau','上海':'Shanghai','北京':'Beijing',
+  // 歐美
+  '巴黎':'Paris','倫敦':'London','羅馬':'Rome','米蘭':'Milan','巴塞隆納':'Barcelona','阿姆斯特丹':'Amsterdam','布拉格':'Prague','維也納':'Vienna','紐約':'New York','洛杉磯':'Los Angeles','舊金山':'San Francisco','杜拜':'Dubai','伊斯坦堡':'Istanbul','雪梨':'Sydney','墨爾本':'Melbourne'
+};
 async function wxGeocode(q){
   const tries=[];
   if(WX_ALIAS[q]) tries.push([WX_ALIAS[q],'en']);
