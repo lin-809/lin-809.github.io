@@ -217,6 +217,9 @@ a{text-decoration:none;color:inherit}
 .adv-toggle.open .adv-caret{transform:rotate(180deg)}
 .adv-panel{display:none}
 .adv-panel.open{display:block}
+.import-hint{text-align:center;font-size:13px;color:var(--text3);margin-top:12px}
+.import-hint a{color:var(--green);font-weight:600;text-decoration:underline;cursor:pointer}
+.imp-tip{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:12px}
 
 /* ── GEN BUTTON ── */
 .gen-btn{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -766,6 +769,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
         </div>
 
         <button class="gen-btn" id="gb" onclick="go()">✨ 立即生成行程</button>
+        <div class="import-hint">已經用 ChatGPT / Gemini 規劃好了？<a href="#" onclick="openImport();return false">📋 貼上現成行程整合進來</a></div>
       </div>
     </div>
 
@@ -837,6 +841,19 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
 </footer>
 
 <div class="toast" id="toast"></div>
+
+<!-- 匯入現成行程(從 ChatGPT / Gemini 等貼上)-->
+<div class="mt-overlay" id="impOverlay" onclick="if(event.target===this)closeImport()">
+  <div class="mt-panel">
+    <div class="mt-head">
+      <div class="mt-title">📋 匯入現成行程</div>
+      <button class="mt-close" onclick="closeImport()">✕</button>
+    </div>
+    <div class="imp-tip">把你在 ChatGPT、Gemini 或任何地方整理好的行程文字整段貼進來，Wandr 會自動整理成時間軸、預算與比價，並可收藏／分享／匯出 PDF。</div>
+    <textarea id="impText" class="free-note" style="min-height:180px" placeholder="把你的行程整段貼上即可，例如：東京5天，Day1抵達逛新宿、Day2淺草寺+晴空塔+上野、Day3迪士尼、Day4自由行購物、Day5返程…"></textarea>
+    <button class="gen-btn" id="impBtn" style="margin-top:12px" onclick="importTrip()">🪄 整理並匯入</button>
+  </div>
+</div>
 
 <!-- 我的行程(離線收藏)-->
 <div class="mt-overlay" id="mtOverlay" onclick="if(event.target===this)closeMyTrips()">
@@ -1092,6 +1109,39 @@ function openSavedTrip(i){
   document.getElementById('planner').scrollIntoView({behavior:'smooth'});
 }
 function deleteSavedTrip(i){ const t=getSavedTrips(); t.splice(i,1); setSavedTrips(t); renderMyTrips(); }
+
+// ── 匯入現成行程(把 ChatGPT/Gemini 等既有行程整合進 Wandr)──
+function openImport(){ document.getElementById('impOverlay').classList.add('open'); setTimeout(()=>document.getElementById('impText').focus(),100); }
+function closeImport(){ document.getElementById('impOverlay').classList.remove('open'); }
+async function importTrip(){
+  const txt=document.getElementById('impText').value.trim();
+  if(!txt){ document.getElementById('impText').focus(); return; }
+  if(txt.length>6000){ showToast('行程文字太長,請精簡到 6000 字以內'); return; }
+  if(!navigator.onLine){ showToast('📡 目前沒有網路,無法整理匯入。'); return; }
+  const btn=document.getElementById('impBtn');
+  btn.disabled=true; btn.textContent='🪄 整理中…';
+  const prompt=`使用者已經自行(或用其他 AI)整理好一份旅遊行程。請「不要重新規劃」,只把下面的行程文字轉換成指定 JSON 格式,盡量保留使用者原本寫的目的地、天數與每天的景點;缺少的欄位(預算、亮點、飯店、時段分類、emoji、費用)請依內容合理補齊,費用未知就填「參考當地」或「免費」。
+行程文字:
+"""${txt}"""
+只回傳純 JSON(禁止 markdown、禁止說明):
+{"dest":"目的地","days":天數整數,"budget_twd":每人預估台幣整數,"highlight":"15字內亮點","tips":["提醒1","提醒2","提醒3"],"hotels":[{"tier":"平價","name":"真實飯店名或建議區域","area":"區域","price_twd":"TWD範圍/晚"},{"tier":"中高級","name":"...","area":"...","price_twd":"..."}],"itinerary":[{"day":1,"title":"標題","city":"城市","emoji":"emoji","morning":[{"icon":"emoji","name":"景點名","desc":"25字內","cost":"費用或免費","aff_type":"none/ticket/tour/hotel"}],"afternoon":[...],"evening":[...]}]}
+把使用者提到的每個景點安排到對應天數與時段。繁體中文。`;
+  try{
+    const raw=await callAI(prompt);
+    const json=parseAIJson(raw);
+    lastResult=json;
+    const di2=document.getElementById('di'); if(di2&&json.dest){ di2.value=json.dest; document.getElementById('xc').classList.add('on'); }
+    closeImport();
+    render(json);
+    document.getElementById('affNote').style.display='block';
+    document.getElementById('planner').scrollIntoView({behavior:'smooth'});
+    showToast('✅ 已整合你的行程!可收藏／分享／匯出 PDF');
+  }catch(e){
+    showToast('⚠️ '+(e.message||'整理失敗,請重試或精簡行程文字'));
+  }finally{
+    btn.disabled=false; btn.textContent='🪄 整理並匯入';
+  }
+}
 
 // ── PDF Export ──
 async function exportPDF(){
