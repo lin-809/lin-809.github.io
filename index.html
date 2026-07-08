@@ -211,6 +211,12 @@ a{text-decoration:none;color:inherit}
 .custom-budget-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--text2);flex-wrap:wrap}
 .custom-budget-wrap input{width:140px;padding:7px 10px;font-size:13px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;color:var(--text)}
 .custom-budget-wrap input:focus{outline:none;border-color:var(--green)}
+.adv-toggle{background:none;border:none;color:var(--text3);font-size:13px;font-family:inherit;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
+.adv-toggle:hover{color:var(--green)}
+.adv-caret{transition:transform .2s;font-size:11px}
+.adv-toggle.open .adv-caret{transform:rotate(180deg)}
+.adv-panel{display:none}
+.adv-panel.open{display:block}
 
 /* ── GEN BUTTON ── */
 .gen-btn{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -741,16 +747,19 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
             <textarea class="free-note" id="freeNote" placeholder="例：已訂新宿的飯店，行程請以新宿為中心；第三天想留半天逛藥妝；帶長輩同行避免走太多路…"></textarea>
           </div>
           <div class="opt-g">
-            <div class="opt-g-label">AI 引擎（單選）</div>
-            <div class="opt-pills" id="aiPills">
-              <button class="op on" data-v="default">🤖 Wandr AI（預設・免費）</button>
-              <button class="op" data-v="gemini">✨ Google Gemini</button>
-              <button class="op" data-v="openai">💬 ChatGPT</button>
-            </div>
-            <div id="aiKeyWrap" style="display:none;margin-top:8px">
-              <input type="password" id="aiKey" class="free-note" style="min-height:auto" placeholder="貼上你的 API Key（只儲存在你的裝置，不會上傳）">
-              <div style="font-size:11px;color:var(--text3);margin-top:4px">
-                取得金鑰：<a id="aiKeyLink" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline">點此前往</a>（Gemini 有免費額度）
+            <button type="button" class="adv-toggle" id="advToggle" onclick="toggleAdv()">⚙️ 進階：改用自己的 AI 金鑰（選填）<span class="adv-caret">▾</span></button>
+            <div id="advPanel" class="adv-panel">
+              <div class="opt-g-label" style="margin-top:12px">AI 引擎（單選）</div>
+              <div class="opt-pills" id="aiPills">
+                <button class="op on" data-v="default">🤖 Wandr AI（預設・免費）</button>
+                <button class="op" data-v="gemini">✨ Google Gemini</button>
+                <button class="op" data-v="openai">💬 ChatGPT</button>
+              </div>
+              <div id="aiKeyWrap" style="display:none;margin-top:8px">
+                <input type="password" id="aiKey" class="free-note" style="min-height:auto" placeholder="貼上你的 API Key（只儲存在你的裝置，不會上傳）">
+                <div style="font-size:11px;color:var(--text3);margin-top:4px">
+                  取得金鑰：<a id="aiKeyLink" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline">點此前往</a>（Gemini 有免費額度）
+                </div>
               </div>
             </div>
           </div>
@@ -936,11 +945,17 @@ document.getElementById('aiPills').addEventListener('click',()=>{
 document.getElementById('aiKey').addEventListener('input',e=>{
   localStorage.setItem('aiKey_'+currentProvider(),e.target.value.trim());
 });
+// ── 進階設定摺疊(把 Gemini/ChatGPT 收起來,一般人只用預設 Wandr AI)──
+function toggleAdv(){
+  document.getElementById('advToggle').classList.toggle('open');
+  document.getElementById('advPanel').classList.toggle('open');
+}
 (function restoreAI(){
   const prov=localStorage.getItem('aiProvider');
   if(prov&&prov!=='default'){
     const btn=document.querySelector(`#aiPills .op[data-v="${prov}"]`);
     if(btn) btn.click();
+    toggleAdv(); // 之前選過自訂引擎 → 自動展開,讓使用者看得到目前用哪個
   }
 })();
 
