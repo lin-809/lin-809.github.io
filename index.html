@@ -220,6 +220,20 @@ a{text-decoration:none;color:inherit}
 .import-hint{text-align:center;font-size:13px;color:var(--text3);margin-top:12px}
 .import-hint a{color:var(--green);font-weight:600;text-decoration:underline;cursor:pointer}
 .imp-tip{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:12px}
+.weather-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.weather-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.weather-now-emoji{font-size:40px;line-height:1}
+.weather-now-temp{font-size:28px;font-weight:800;color:var(--text)}
+.weather-now-info{flex:1;min-width:130px}
+.weather-now-desc{font-size:14px;color:var(--text2);font-weight:600}
+.weather-now-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.weather-title{font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:8px}
+.weather-forecast{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.weather-day{flex:0 0 auto;min-width:56px;text-align:center;background:var(--bg2);border-radius:10px;padding:8px 6px}
+.weather-day-name{font-size:11px;color:var(--text3);font-weight:600}
+.weather-day-emoji{font-size:20px;margin:3px 0}
+.weather-day-temp{font-size:11px;color:var(--text2)}
+.weather-day-temp b{color:var(--text)}
 
 /* ── GEN BUTTON ── */
 .gen-btn{width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -1143,6 +1157,42 @@ async function importTrip(){
   }
 }
 
+// ── 目的地天氣(Open-Meteo,免費、免 API 金鑰)──
+const WX={0:['☀️','晴朗'],1:['🌤️','大致晴朗'],2:['⛅','局部多雲'],3:['☁️','陰天'],45:['🌫️','有霧'],48:['🌫️','霧凇'],51:['🌦️','毛毛雨'],53:['🌦️','毛毛雨'],55:['🌧️','毛毛雨'],56:['🌧️','凍雨'],57:['🌧️','凍雨'],61:['🌧️','小雨'],63:['🌧️','中雨'],65:['🌧️','大雨'],66:['🌧️','凍雨'],67:['🌧️','凍雨'],71:['🌨️','小雪'],73:['🌨️','中雪'],75:['❄️','大雪'],77:['❄️','雪粒'],80:['🌦️','陣雨'],81:['🌧️','陣雨'],82:['⛈️','強陣雨'],85:['🌨️','陣雪'],86:['❄️','大陣雪'],95:['⛈️','雷雨'],96:['⛈️','雷雨冰雹'],99:['⛈️','強雷雨']};
+function wxInfo(c){ return WX[c]||['🌡️','—']; }
+// 部分繁中譯名 Open-Meteo 對不上,用英文別名補救
+const WX_ALIAS={'峇里島':'Bali','巴里島':'Bali','曼谷':'Bangkok','首爾':'Seoul','沖繩':'Okinawa','清邁':'Chiang Mai','宿霧':'Cebu','蘇美島':'Ko Samui','普吉島':'Phuket','長灘島':'Boracay','峴港':'Da Nang','吉隆坡':'Kuala Lumpur','胡志明市':'Ho Chi Minh City'};
+async function wxGeocode(q){
+  const tries=[];
+  if(WX_ALIAS[q]) tries.push([WX_ALIAS[q],'en']);
+  tries.push([q,'zh'],[q,'en']);
+  for(const [name,lang] of tries){
+    try{
+      const g=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=${lang}`).then(r=>r.json());
+      if(g.results&&g.results[0]) return g.results[0];
+    }catch(e){}
+  }
+  return null;
+}
+async function loadWeather(dest){
+  const card=document.getElementById('weatherCard');
+  if(!card||!dest||!navigator.onLine) return;
+  try{
+    const q=dest.replace(/^(日本|韓國|泰國|法國|新加坡|台灣|中國|美國|英國|義大利|印尼|越南|馬來西亞|菲律賓)/,'').trim()||dest;
+    const loc=await wxGeocode(q);
+    if(!loc) return; // 查不到地名就不顯示,不影響行程
+    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,weather_code,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`).then(r=>r.json());
+    const cur=wx.current, ci=wxInfo(cur.weather_code);
+    const days=wx.daily.time.map((t,i)=>{
+      const dt=new Date(t), name=i===0?'今天':'週'+['日','一','二','三','四','五','六'][dt.getDay()];
+      const e=wxInfo(wx.daily.weather_code[i])[0];
+      return `<div class="weather-day"><div class="weather-day-name">${name}</div><div class="weather-day-emoji">${e}</div><div class="weather-day-temp"><b>${Math.round(wx.daily.temperature_2m_max[i])}°</b> ${Math.round(wx.daily.temperature_2m_min[i])}°</div></div>`;
+    }).join('');
+    card.innerHTML=`<div class="weather-head"><span class="weather-now-emoji">${ci[0]}</span><span class="weather-now-temp">${Math.round(cur.temperature_2m)}°C</span><div class="weather-now-info"><div class="weather-now-desc">${loc.name} · ${ci[1]}</div><div class="weather-now-meta">濕度 ${cur.relative_humidity_2m}%　·　天氣資料 Open-Meteo</div></div></div><div class="weather-title">🌦️ 未來 7 天預報</div><div class="weather-forecast">${days}</div>`;
+    card.style.display='block';
+  }catch(e){ /* 天氣載入失敗不影響行程 */ }
+}
+
 // ── PDF Export ──
 async function exportPDF(){
   if(!lastResult) return;
@@ -1313,6 +1363,7 @@ function render(d){
     <button class="act-btn pdf" onclick="exportPDF()">📄 匯出 PDF</button>
     <button class="act-btn share" onclick="shareItinerary()">📲 分享行程</button>
   </div>`;
+  h+=`<div id="weatherCard" class="weather-card" style="display:none"></div>`;
   if(d.tips?.length) h+=`<div class="tipsbar">${d.tips.map(t=>`<span>💡 ${t}</span>`).join('')}</div>`;
   h+=`<div class="aff-banner"><div class="aff-banner-txt"><div class="aff-banner-title">🏨 ${d.dest} 住宿比價</div><div class="aff-banner-sub">跨平台比較，找到最划算的選擇</div></div><div class="aff-links"><a class="aff-btn aff-trip" href="${AFF.trip(d.dest)}" target="_blank" rel="noopener">Trip.com</a><a class="aff-btn aff-agoda" href="${AFF.agoda(d.dest)}" target="_blank" rel="noopener">Agoda</a><a class="aff-btn aff-booking" href="${AFF.booking(d.dest)}" target="_blank" rel="noopener">Booking</a><a class="aff-btn aff-kkday" href="${AFF.kkday(d.dest)}" target="_blank" rel="noopener">KKday</a><a class="aff-btn aff-klook" href="${AFF.klook(d.dest)}" target="_blank" rel="noopener">Klook</a></div></div>`;
   if(d.hotels?.length){
@@ -1330,6 +1381,7 @@ function render(d){
   h+=`</div>`;
   out.innerHTML=h;
   syncSaveBtn();
+  loadWeather(d.dest);
 }
 
 // ── Load shared URL ──
