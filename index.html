@@ -130,6 +130,9 @@ a{text-decoration:none;color:inherit}
 @keyframes kb3{from{transform:scale(1.08) translate(-1%,2%)}to{transform:scale(1.2) translate(2%,-2%)}}
 @keyframes kb4{from{transform:scale(1.18) translate(2%,-2%)}to{transform:scale(1.07) translate(-2%,1%)}}
 @media(prefers-reduced-motion:reduce){.dest-bg{animation:none!important;inset:0}}
+.dest-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s}
+.dest-video.playing{opacity:1}
+@media(prefers-reduced-motion:reduce){.dest-video{display:none}}
 .dest-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,transparent 50%)}
 .dest-info{position:absolute;bottom:0;left:0;right:0;padding:1.2rem}
 .dest-name{font-size:16px;font-weight:600;color:#fff}
@@ -468,6 +471,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
     <div class="dest-grid">
       <div class="dest-card large" onclick="goToPlanner('日本東京')">
         <div class="dest-bg" style="background-image:url('img/tokyo.jpg'),linear-gradient(135deg,#1a1a2e,#16213e,#0f3460,#533483)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/tokyo.jpg" data-src="video/tokyo.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🇯🇵 東京</div>
@@ -477,6 +481,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('韓國首爾')">
         <div class="dest-bg" style="background-image:url('img/seoul.jpg'),linear-gradient(135deg,#2c1654,#4a0e8f,#7b2ff7,#a855f7)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/seoul.jpg" data-src="video/seoul.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🇰🇷 首爾</div>
@@ -485,6 +490,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('峇里島')">
         <div class="dest-bg" style="background-image:url('img/bali.jpg'),linear-gradient(135deg,#0d4429,#1a7a4a,#2eb872,#7dd4a8)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/bali.jpg" data-src="video/bali.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🌴 峇里島</div>
@@ -494,6 +500,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('泰國曼谷')">
         <div class="dest-bg" style="background-image:url('img/bangkok.jpg'),linear-gradient(135deg,#7c2d12,#c2410c,#ea580c,#fb923c)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/bangkok.jpg" data-src="video/bangkok.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🇹🇭 曼谷</div>
@@ -502,6 +509,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('法國巴黎')">
         <div class="dest-bg" style="background-image:url('img/paris.jpg'),linear-gradient(135deg,#1e3a5f,#1e40af,#3b82f6,#93c5fd)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/paris.jpg" data-src="video/paris.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🇫🇷 巴黎</div>
@@ -510,6 +518,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('新加坡')">
         <div class="dest-bg" style="background-image:url('img/singapore.jpg'),linear-gradient(135deg,#1c1917,#292524,#44403c,#78716c)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/singapore.jpg" data-src="video/singapore.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🇸🇬 新加坡</div>
@@ -518,6 +527,7 @@ footer{background:#0d0d0d;padding:3.5rem 2rem 2rem}
       </div>
       <div class="dest-card" onclick="goToPlanner('日本大阪')">
         <div class="dest-bg" style="background-image:url('img/osaka.jpg'),linear-gradient(135deg,#881337,#be123c,#f43f5e,#fb7185)"></div>
+        <video class="dest-video" muted loop playsinline preload="none" poster="img/osaka.jpg" data-src="video/osaka.mp4"></video>
         <div class="dest-overlay"></div>
         <div class="dest-info">
           <div class="dest-name">🏯 大阪</div>
@@ -1189,6 +1199,34 @@ function render(d){
       setTimeout(()=>{render(data);document.getElementById('affNote').style.display='block';document.getElementById('planner').scrollIntoView({behavior:'smooth'});},500);
     }catch(e){}
   }
+})();
+
+// ── 目的地卡片影片:懶載入 + 進出視窗自動播放/暫停(省流量省電)──
+(function(){
+  const vids=document.querySelectorAll('.dest-video');
+  if(!vids.length) return;
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return; // 使用者要求減少動態 → 只顯示照片,不載入影片
+  if(!('IntersectionObserver' in window)){
+    // 舊瀏覽器:直接載入播放(退化處理)
+    vids.forEach(v=>{v.src=v.dataset.src;v.play().then(()=>v.classList.add('playing')).catch(()=>{});});
+    return;
+  }
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      const v=en.target;
+      if(en.isIntersecting){
+        if(!v.src){
+          v.addEventListener('playing',()=>v.classList.add('playing'),{once:true}); // 真的開始播才淡入
+          v.src=v.dataset.src;                        // 第一次進畫面才載入
+        }
+        const p=v.play(); if(p&&p.catch) p.catch(()=>{}); // 自動播放需 muted(已設);忽略省電中斷
+      }else{
+        v.pause();
+      }
+    });
+  },{threshold:0.25});
+  vids.forEach(v=>io.observe(v));
 })();
 </script>
 
